@@ -18,7 +18,8 @@
     "sgs:snapshot": "node scripts/sgs-snapshot.mjs",
     "check:numbers": "node scripts/check-built-numbers.mjs",
     "lighthouse": "lhci autorun --config=lighthouserc.cjs",
-    "check:diagrams": "node scripts/check-diagrams.mjs"
+    "check:diagrams": "node scripts/check-diagrams.mjs",
+    "og": "node scripts/render-og.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^8.1.6",

@@ -40,7 +40,7 @@ const sectionTitle = 'heading text-[1.625rem] md:text-[1.75rem] lg:text-[2rem]';
 const container = 'mx-auto max-w-[1120px] px-4 md:px-8 xl:px-0';
 ---
 <BaseLayout lang={lang} title={t(lang, 'meta.homeTitle')} description={t(lang, 'meta.homeDescription')}
-  alternates={{ pt: homePath('pt'), en: homePath('en') }} jsonLd={jsonLd}>
+  alternates={{ pt: homePath('pt'), en: homePath('en') }} jsonLd={jsonLd} ogImage={`/og/home-${lang}.png`}>
 
   <section aria-labelledby="hero-titulo" class={`${container} grid items-center gap-8 py-10 md:gap-10 md:py-16 lg:grid-cols-[1.35fr_1fr] lg:gap-16 lg:py-24`}>
     <div class="flex min-w-0 flex-col gap-6">

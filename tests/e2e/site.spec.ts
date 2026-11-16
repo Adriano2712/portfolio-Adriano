@@ -193,3 +193,18 @@ test('botão de tema alterna claro/escuro e lembra a escolha', async ({ browser 
   await expect(page.locator('header [data-theme-toggle]')).toHaveAttribute('aria-label', 'Switch to dark mode');
   await ctx.close();
 });
+
+test.describe('Open Graph', () => {
+  for (const p of PAGES) {
+    test(`${p.path} tem og:image 1200×630 que existe`, async ({ page, request }) => {
+      await page.goto(p.path);
+      const og = await page.locator('meta[property="og:image"]').getAttribute('content');
+      expect(og).toMatch(/\/og\/[a-z-]+-(pt|en)\.png$/);
+      expect(og).toContain(p.lang === 'en' ? '-en.png' : '-pt.png');
+      await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
+      const res = await request.get(new URL(og!).pathname);
+      expect(res.status()).toBe(200);
+      expect(res.headers()['content-type']).toContain('image/png');
+    });
+  }
+});

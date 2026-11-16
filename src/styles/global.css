@@ -23,8 +23,25 @@
   --radius-lg: 10px;
 }
 
+/*
+ * Tema: sem escolha salva, segue o sistema; com escolha (botão no cabeçalho), o atributo
+ * data-theme em <html> manda. O script no <head> (BaseLayout) aplica a escolha antes da pintura.
+ */
+:root[data-theme="light"] {
+  --color-bg: #f7f8fa;
+  --color-surface: #ffffff;
+  --color-surface-2: #eef1f4;
+  --color-border: #d7dde4;
+  --color-text: #0f1720;
+  --color-muted: #4f5b69;
+  --color-accent: #0f7b53;
+  --color-on-accent: #ffffff;
+  color-scheme: light;
+}
+:root[data-theme="dark"] { color-scheme: dark; }
+
 @media (prefers-color-scheme: light) {
-  :root {
+  :root:not([data-theme="dark"]) {
     --color-bg: #f7f8fa;
     --color-surface: #ffffff;
     --color-surface-2: #eef1f4;
@@ -105,7 +122,8 @@ a { color: inherit; }
 /* Diagramas: o SVG vem do Mermaid com cores em variáveis CSS. */
 .diagram svg { width: 100%; height: auto; max-width: 100%; }
 
+:root[data-theme="light"] :is(.astro-code, .astro-code span) { color: var(--shiki-light) !important; }
 @media (prefers-color-scheme: light) {
-  .astro-code, .astro-code span { color: var(--shiki-light) !important; }
+  :root:not([data-theme="dark"]) :is(.astro-code, .astro-code span) { color: var(--shiki-light) !important; }
 }
 }

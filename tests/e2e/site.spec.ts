@@ -171,3 +171,25 @@ test('zoom: diagrama e imagem abrem em tela cheia e fecham', async ({ page }) =>
   await page.keyboard.press('Escape');
   await expect(dialog).toBeHidden();
 });
+
+test('botão de tema alterna claro/escuro e lembra a escolha', async ({ browser }) => {
+  const ctx = await browser.newContext({ colorScheme: 'dark' });
+  const page = await ctx.newPage();
+  await page.goto('/pt/');
+  await page.waitForLoadState('networkidle');
+  const html = page.locator('html');
+  const btn = page.locator('header [data-theme-toggle]');
+  await expect(btn).toHaveAttribute('aria-label', 'Ativar modo claro');
+  const bgDark = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+
+  await btn.click();
+  await expect(html).toHaveAttribute('data-theme', 'light');
+  await expect(btn).toHaveAttribute('aria-label', 'Ativar modo escuro');
+  const bgLight = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  expect(bgLight).not.toBe(bgDark);
+
+  await page.goto('/en/projects/indexa/');
+  await expect(html).toHaveAttribute('data-theme', 'light');
+  await expect(page.locator('header [data-theme-toggle]')).toHaveAttribute('aria-label', 'Switch to dark mode');
+  await ctx.close();
+});

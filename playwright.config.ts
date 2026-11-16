@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const PORT = 4321;
+// Porta própria: nunca reaproveita o "npm run dev" aberto (que tem a barra de ferramentas do Astro).
+const PORT = 4325;
 
 export default defineConfig({
   testDir: 'tests/e2e',
@@ -17,7 +18,7 @@ export default defineConfig({
     command: `npx astro dev --port ${PORT}`,
     url: `http://localhost:${PORT}/pt/`,
     env: { PLAYWRIGHT: '1' },
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     timeout: 120_000,
   },
 });

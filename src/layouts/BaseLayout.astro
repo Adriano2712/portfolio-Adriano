@@ -30,6 +30,10 @@ const other = otherLang(lang);
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script is:inline>
+    // Aplica o tema escolhido antes da pintura (sem piscar o tema errado). Sem escolha, segue o sistema.
+    try { const t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
   {[inter400, inter600, mono500, mono700].map((href) => <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />)}
   <title>{title}</title>
   <meta name="description" content={description} />

@@ -23,6 +23,9 @@ export const ui = {
     'lang.pt': 'Português',
     'lang.en': 'English',
 
+    'theme.toLight': 'Ativar modo claro',
+    'theme.toDark': 'Ativar modo escuro',
+
     'hero.title': 'Dev Full Stack Júnior.',
     'hero.tagline': 'Construo sistemas completos e testo o que construo.',
     'hero.stackLabel': 'Stack principal',
@@ -137,6 +140,9 @@ export const ui = {
     'lang.switch': 'Language',
     'lang.pt': 'Português',
     'lang.en': 'English',
+
+    'theme.toLight': 'Switch to light mode',
+    'theme.toDark': 'Switch to dark mode',
 
     'hero.title': 'Junior Full Stack Developer.',
     'hero.tagline': 'I build complete systems and test what I build.',

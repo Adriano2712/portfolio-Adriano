@@ -1,5 +1,6 @@
 ---
 import LanguageSwitch from './LanguageSwitch.astro';
+import ThemeToggle from './ThemeToggle.astro';
 import { t, homePath, type Alternates } from '../i18n/utils';
 import type { Locale } from '../data/facts';
 
@@ -26,6 +27,7 @@ const links = [
 
     <div class="flex items-center gap-2">
       <LanguageSwitch lang={lang} alternates={alternates} />
+      <ThemeToggle lang={lang} />
       <details class="group relative md:hidden">
         <summary class="flex size-11 cursor-pointer list-none items-center justify-center rounded-md border border-border [&::-webkit-details-marker]:hidden">
           <span class="sr-only">{t(lang, 'nav.menu')}</span>

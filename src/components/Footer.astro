@@ -1,0 +1,15 @@
+---
+import { t } from '../i18n/utils';
+import { profile, type Locale } from '../data/facts';
+
+interface Props { lang: Locale }
+const { lang } = Astro.props;
+// [PENDENTE] link do repositório deste site, quando for criado no GitHub.
+const sourceUrl = profile.links.github;
+---
+<footer class="border-t border-border">
+  <div class="mx-auto flex max-w-[1120px] flex-wrap justify-between gap-x-6 gap-y-2 px-4 py-6 text-sm text-muted md:px-8 xl:px-0">
+    <span>{profile.name}</span>
+    <a href={sourceUrl} class="flex min-h-11 items-center">{t(lang, 'footer.source')}</a>
+  </div>
+</footer>

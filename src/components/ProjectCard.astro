@@ -1,0 +1,40 @@
+---
+import Chip from './Chip.astro';
+import Icon from './Icon.astro';
+import { facts, repos, type FactKey, type Locale } from '../data/facts';
+import { t, projectPath } from '../i18n/utils';
+import { slugOf, type Project } from '../lib/project';
+
+interface Props { entry: Project; lang: Locale }
+const { entry, lang } = Astro.props;
+const d = entry.data;
+const slug = slugOf(entry);
+const h = d.highlight;
+const metric = h ? ('fact' in h ? facts[h.fact as FactKey][lang] : h.text) : undefined;
+const isText = h ? !('fact' in h) : false;
+const repo = d.repo ? repos[d.repo as keyof typeof repos] : undefined;
+---
+<article class="flex min-w-0 flex-col gap-5 rounded-lg border border-border bg-surface p-6">
+  <p class="font-mono text-sm text-muted">{t(lang, 'projects.personal')}</p>
+  <div class="flex flex-col gap-2">
+    <h3 class="heading text-2xl">
+      <a href={projectPath(lang, slug)} class="no-underline hover:underline">{d.title}</a>
+    </h3>
+    <p class="text-muted">{d.summary}</p>
+  </div>
+  {h && (
+    <div class="flex flex-col gap-1 rounded-md bg-surface-2 p-4">
+      <p class:list={['font-mono font-medium leading-tight text-accent', isText ? 'text-2xl' : 'text-[2rem] lg:text-[2.5rem]']}>{metric}</p>
+      <p class="text-sm">{h.label}</p>
+    </div>
+  )}
+  <ul aria-label="Stack" class="flex flex-wrap gap-1.5">
+    {d.stack.slice(0, 6).map((s) => <li><Chip variant="outline">{s}</Chip></li>)}
+  </ul>
+  <div class="mt-auto flex flex-wrap items-center gap-4">
+    <a href={projectPath(lang, slug)} class="inline-flex min-h-11 items-center gap-1.5 font-semibold text-accent no-underline hover:underline">
+      {t(lang, 'projects.readCase')}<Icon name="arrow-right" /><span class="sr-only">: {d.title}</span>
+    </a>
+    {repo && <a href={repo} class="inline-flex min-h-11 items-center text-muted">{t(lang, 'projects.code')}<span class="sr-only">: {d.title}</span></a>}
+  </div>
+</article>

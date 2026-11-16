@@ -1,0 +1,22 @@
+---
+import { experience, education } from '../../data/facts';
+import { t, getLangFromUrl } from '../../i18n/utils';
+
+const lang = getLangFromUrl(Astro.url);
+const groups = [
+  { title: t(lang, 'about.experience'), items: experience.map((e) => ({ line: `${e.role[lang]} · ${e.company}`, period: e.period[lang] })) },
+  { title: t(lang, 'about.education'), items: education.map((e) => ({ line: `${e.course[lang]} · ${e.school}`, period: e.period[lang] })) },
+];
+---
+<div class="not-prose flex flex-col gap-6">
+  {groups.map((g) => (
+    <div class="flex flex-col gap-3">
+      <h3 class="font-mono text-sm font-medium text-muted">{g.title}</h3>
+      <ol class="flex list-none flex-col gap-3 border-l-2 border-border pl-4">
+        {g.items.map((i) => (
+          <li><p class="font-semibold">{i.line}</p><p class="font-mono text-sm text-muted">{i.period}</p></li>
+        ))}
+      </ol>
+    </div>
+  ))}
+</div>

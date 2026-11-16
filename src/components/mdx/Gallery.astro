@@ -1,0 +1,27 @@
+---
+// Galeria estática: AVIF/WebP em vários tamanhos; "Ampliar" abre a imagem original.
+// Com JavaScript, o link abre a imagem no ZoomDialog; sem, abre o arquivo.
+import { Picture, getImage } from 'astro:assets';
+import { currentProject } from '../../lib/project';
+import { t, getLangFromUrl } from '../../i18n/utils';
+import Icon from '../Icon.astro';
+
+const entry = await currentProject(Astro.url);
+const lang = getLangFromUrl(Astro.url);
+const items = await Promise.all(
+  entry.data.gallery.map(async (g) => ({ ...g, full: await getImage({ src: g.src, format: 'webp', quality: 90 }) })),
+);
+---
+<ul class="!mt-6 grid !list-none gap-4 !pl-0 md:grid-cols-2 xl:grid-cols-3">
+  {items.map((g) => (
+    <li class="!mt-0 overflow-hidden rounded-md border border-border bg-surface">
+      <Picture src={g.src} alt={g.alt} formats={['avif', 'webp']} widths={[400, 800, 1200]}
+        sizes="(min-width: 1280px) 360px, (min-width: 768px) 50vw, 100vw"
+        class="block aspect-[16/10] w-full object-cover object-left-top" loading="lazy" decoding="async" />
+      <a href={g.full.src} data-zoom-img={g.alt} class="flex min-h-11 items-center justify-between gap-2 px-3 text-sm text-muted !no-underline hover:text-text">
+        <span>{t(lang, 'case.zoom')}</span><Icon name="maximize" size={16} />
+        <span class="sr-only">: {t(lang, 'case.zoomImage')}</span>
+      </a>
+    </li>
+  ))}
+</ul>

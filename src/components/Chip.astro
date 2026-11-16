@@ -1,0 +1,8 @@
+---
+interface Props { variant?: 'filled' | 'outline' }
+const { variant = 'filled' } = Astro.props;
+---
+<span class:list={[
+  'inline-block rounded-sm px-2.5 py-1 font-mono text-sm',
+  variant === 'filled' ? 'bg-surface-2 text-text' : 'border border-border text-muted',
+]}><slot /></span>

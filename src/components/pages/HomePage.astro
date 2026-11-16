@@ -1,0 +1,160 @@
+---
+import { getEntry, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectCard from '../ProjectCard.astro';
+import MetricsBar from '../MetricsBar.astro';
+import DemoSection from '../DemoSection.astro';
+import Chip from '../Chip.astro';
+import Icon from '../Icon.astro';
+import Timeline from '../mdx/Timeline.astro';
+import Certifications from '../mdx/Certifications.astro';
+import Empty from '../mdx/Empty.astro';
+import { facts, profile, education, type Locale } from '../../data/facts';
+import { t, homePath, projectPath, otherLang } from '../../i18n/utils';
+import { getProjects, slugOf } from '../../lib/project';
+
+interface Props { lang: Locale }
+const { lang } = Astro.props;
+const projects = await getProjects(lang);
+const personal = projects.filter((p) => p.data.kind === 'personal');
+const professional = projects.filter((p) => p.data.kind === 'professional');
+const about = await getEntry('about', `root/${lang}`);
+if (!about) throw new Error(`Sobre não encontrado: root/${lang}`);
+const { Content: AboutContent } = await render(about);
+const other = otherLang(lang);
+const site = Astro.site ?? new URL(Astro.url.origin);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: profile.name,
+  jobTitle: profile.role[lang],
+  url: new URL(homePath(lang), site).href,
+  email: profile.links.email,
+  address: { '@type': 'PostalAddress', addressLocality: 'Sorocaba', addressRegion: 'SP', addressCountry: 'BR' },
+  sameAs: [profile.links.linkedin, profile.links.github],
+  knowsAbout: [...profile.headlineStack, 'PostgreSQL'],
+  alumniOf: education.map((e) => ({ '@type': 'EducationalOrganization', name: e.school })),
+};
+const sectionTitle = 'heading text-[1.625rem] md:text-[1.75rem] lg:text-[2rem]';
+const container = 'mx-auto max-w-[1120px] px-4 md:px-8 xl:px-0';
+---
+<BaseLayout lang={lang} title={t(lang, 'meta.homeTitle')} description={t(lang, 'meta.homeDescription')}
+  alternates={{ pt: homePath('pt'), en: homePath('en') }} jsonLd={jsonLd}>
+
+  <section aria-labelledby="hero-titulo" class={`${container} grid items-center gap-8 py-10 md:gap-10 md:py-16 lg:grid-cols-[1.35fr_1fr] lg:gap-16 lg:py-24`}>
+    <div class="flex min-w-0 flex-col gap-6">
+      <p class="inline-flex items-center gap-2 self-start rounded-full border border-border px-3 py-1.5 text-sm">
+        <span aria-hidden="true" class="size-2 rounded-full bg-accent"></span>{profile.availability[lang]}
+      </p>
+      <div class="flex flex-col gap-3">
+        <h1 id="hero-titulo" class="heading text-4xl md:text-[2.75rem] lg:text-[3.5rem]">{profile.name}</h1>
+        <p class="max-w-[34ch] text-lg text-muted md:text-xl">
+          <strong class="font-semibold text-text">{t(lang, 'hero.title')}</strong> {t(lang, 'hero.tagline')}
+        </p>
+      </div>
+      <ul aria-label={t(lang, 'hero.stackLabel')} class="flex flex-wrap gap-2">
+        {profile.headlineStack.map((s) => <li><Chip>{s}</Chip></li>)}
+      </ul>
+      <div class="flex flex-wrap gap-3">
+        <a href="#projetos" class="inline-flex min-h-12 items-center gap-2 rounded-md bg-accent px-5 font-semibold text-on-accent no-underline">
+          {t(lang, 'hero.ctaProjects')}<Icon name="arrow-right" />
+        </a>
+        <a href={profile.cv[lang]} download class="inline-flex min-h-12 items-center gap-2 rounded-md border border-border bg-surface px-5 font-semibold no-underline">
+          <Icon name="download" />{t(lang, 'hero.ctaCv')}
+        </a>
+        <a href={profile.links.github} class="inline-flex min-h-12 items-center gap-2 px-4 font-semibold underline underline-offset-4">
+          <Icon name="github" size={18} />{t(lang, 'hero.ctaGithub')}
+        </a>
+      </div>
+      <p class="text-sm text-muted">
+        {t(lang, 'hero.cvLine')} <a href={profile.cv[other]} hreflang={other === 'pt' ? 'pt-BR' : 'en'} download class="text-text">{t(lang, 'hero.ctaCvAlt')}</a>
+      </p>
+    </div>
+
+    <aside aria-label={t(lang, 'hero.proofLabel')} class="flex min-w-0 flex-col gap-5 rounded-lg border border-border bg-surface p-6">
+      <p class="font-mono text-sm text-muted">{t(lang, 'hero.proof')}</p>
+      <div class="flex flex-col gap-1 border-b border-border pb-5">
+        <p class="font-mono text-[2rem] font-medium leading-tight text-accent lg:text-[2.5rem]">{facts['indexa.oracleMatched'][lang]}</p>
+        <p>{t(lang, 'hero.proofOracle')}</p>
+        <a href={projectPath(lang, 'indexa')} class="inline-flex min-h-11 items-center text-sm text-muted hover:text-text">{t(lang, 'hero.proofOracleLink')}</a>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div><p class="font-mono text-[1.75rem] font-medium text-accent">{facts['indexa.tests'][lang]}</p><p class="text-sm text-muted">{t(lang, 'hero.proofTests')}</p></div>
+        <div><p class="font-mono text-[1.75rem] font-medium text-accent">{facts['aisales.phases'][lang]}</p><p class="text-sm text-muted">{t(lang, 'hero.proofPhases')}</p></div>
+      </div>
+    </aside>
+  </section>
+
+  <section id="projetos" aria-labelledby="projetos-titulo" class="scroll-mt-16 border-t border-border">
+    <div class={`${container} flex flex-col gap-8 py-14 md:py-[4.5rem] lg:py-24`}>
+      <div class="flex flex-col gap-2">
+        <h2 id="projetos-titulo" class={sectionTitle}>{t(lang, 'projects.title')}</h2>
+        <p class="text-muted">{t(lang, 'projects.intro')}</p>
+      </div>
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {personal.map((p) => <ProjectCard entry={p} lang={lang} />)}
+      </div>
+      {professional.map((p) => (
+        <article class="flex flex-col items-start justify-between gap-x-8 gap-y-3 rounded-lg border border-dashed border-border px-6 py-5 md:flex-row md:items-center">
+          <div class="flex min-w-0 flex-col gap-1">
+            <p class="font-mono text-sm text-muted">{t(lang, 'projects.professional')} · {t(lang, 'projects.notPublic')}</p>
+            <h3 class="heading text-xl">{p.data.title}</h3>
+            <p class="text-muted">{p.data.summary}</p>
+          </div>
+          <a href={projectPath(lang, slugOf(p))} class="inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap font-semibold">
+            {t(lang, 'projects.learnMore')}<span class="sr-only">: {p.data.title}</span>
+          </a>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <DemoSection lang={lang} />
+
+  <section id="engenharia" aria-labelledby="eng-titulo" class="cv-auto scroll-mt-16 border-t border-border">
+    <div class={`${container} flex flex-col gap-8 py-14 md:py-[4.5rem] lg:py-24`}>
+      <h2 id="eng-titulo" class={sectionTitle}>{t(lang, 'engineering.title')}</h2>
+      <MetricsBar lang={lang} />
+    </div>
+  </section>
+
+  <section id="sobre" aria-labelledby="sobre-titulo" class="cv-auto scroll-mt-16 border-t border-border">
+    <div class={`${container} grid gap-8 py-14 md:py-[4.5rem] lg:grid-cols-[1.2fr_1fr] lg:gap-16 lg:py-24`}>
+      <div class="flex min-w-0 flex-col gap-4">
+        <h2 id="sobre-titulo" class={sectionTitle}>{t(lang, 'about.title')}</h2>
+        <div class="prose"><AboutContent components={{ Timeline: Empty, Certifications: Empty }} /></div>
+      </div>
+      <div class="flex min-w-0 flex-col gap-6">
+        <Timeline />
+        <Certifications />
+      </div>
+    </div>
+  </section>
+
+  <section id="contato" aria-labelledby="contato-titulo" class="cv-auto scroll-mt-16 border-t border-border bg-surface">
+    <div class={`${container} flex flex-col gap-6 py-14 md:py-[4.5rem] lg:py-24`}>
+      <div class="flex flex-col gap-2">
+        <h2 id="contato-titulo" class={sectionTitle}>{t(lang, 'contact.title')}</h2>
+        <p class="text-muted">{t(lang, 'contact.intro')}</p>
+      </div>
+      <ul class="grid gap-3 md:grid-cols-3">
+        {[
+          { href: profile.links.email, icon: 'mail', label: t(lang, 'contact.email'), value: profile.links.emailLabel },
+          { href: profile.links.linkedin, icon: 'linkedin', label: t(lang, 'contact.linkedin'), value: 'in/adriano-prado-alves' },
+          { href: profile.links.github, icon: 'github', label: t(lang, 'contact.github'), value: 'Adriano2712' },
+        ].map((c) => (
+          <li>
+            <a href={c.href} class="flex min-h-16 items-center gap-3 rounded-md border border-border bg-bg px-4 py-3 no-underline hover:border-accent">
+              <Icon name={c.icon as 'mail'} size={20} />
+              <span class="flex min-w-0 flex-col">
+                <span class="font-semibold">{c.label}</span>
+                <span class="break-all font-mono text-sm text-muted">{c.value}</span>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</BaseLayout>

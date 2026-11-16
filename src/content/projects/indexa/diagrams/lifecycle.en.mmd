@@ -1,0 +1,15 @@
+%% Draft. Source: indexa/README.md (Adjustment lifecycle).
+stateDiagram-v2
+    state "Waiting for index" as Waiting
+    state "Calculated" as Calculated
+    state "Notified" as Notified
+    state "Applied" as Applied
+    state "Superseded" as Superseded
+    [*] --> Waiting: enters notice period<br/>or retroactive entry
+    Waiting --> Calculated: all window months published
+    Calculated --> Notified: email + PDF letter sent
+    Calculated --> Applied: date reached or retroactive
+    Notified --> Applied: date reached
+    Calculated --> Superseded: index revised by the source
+    Applied --> Superseded: retroactive never communicated<br/>(base date correction)
+    Superseded --> [*]

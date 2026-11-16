@@ -1,0 +1,15 @@
+%% Draft. Source: indexa/README.md (Architecture). Rendered to SVG at build time (Stage 3).
+flowchart TB
+    U[User] -->|HTTPS| C[Caddy]
+    C --> A
+    subgraph A[Indexa container]
+        direction LR
+        P[React dashboard] --- API[ASP.NET Core API<br/>HttpOnly cookie · JWT]
+        API --> S[Services<br/>adjustments · notices · letters]
+        H[Hangfire<br/>collect · process · send] --> S
+        S --> M[[Calculation engine<br/>pure library]]
+    end
+    S --> DB[(PostgreSQL<br/>data + Hangfire queue<br/>immutability trigger)]
+    S -->|IIndexProvider<br/>retries · circuit breaker| BC[SGS API<br/>Central Bank of Brazil]
+    S -->|INotifier · SMTP| E[Email]
+    S -->|IPdfGenerator| PDF[PDF letter]

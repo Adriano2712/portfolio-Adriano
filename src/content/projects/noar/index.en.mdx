@@ -1,0 +1,58 @@
+---
+title: NoAr
+lang: en
+kind: personal
+order: 3
+summary: Alerts you when a website or API goes down, with history, incidents and a public status page, without an external queue.
+highlight:
+  text: SKIP LOCKED
+  label: scheduling inside PostgreSQL, no external queue
+stack: [Python, FastAPI, SQLAlchemy, PostgreSQL, Next.js, TypeScript, Tailwind]
+repo: noar
+diagrams:
+  - id: architecture
+    caption: API and worker share the same code; Postgres is both the database and the scheduler.
+gallery: []
+statusPage: null # opcional: URL pública da página de status, se o NoAr for publicado (Etapa 4)
+---
+
+## Problem
+
+Knowing a website or API is down before a customer reports it, with history to understand what happened, without running an external queue just to schedule checks.
+
+## Result
+
+- Multi-user monitor with check history, incidents opened and closed automatically and a public status page per account.
+- Alerts via email, Telegram and webhook.
+- JWT authentication, isolation between accounts and SSRF protection.
+- Tests in three layers: pytest (API and worker), Vitest (interface) and Playwright (end to end).
+
+## Architecture
+
+<Diagram id="architecture" />
+
+The worker is a separate process that runs the same code as the API. It picks due checks straight from Postgres with `SELECT … FOR UPDATE SKIP LOCKED`: several workers can run together without taking the same check, and there is no Redis or queue to operate.
+
+## Technical decisions
+
+**Scheduling in Postgres, no external queue (ADR 0003).** `SKIP LOCKED` spreads work across workers using the database that already exists. One less piece to deploy, monitor and back up.
+
+**SSRF protection (ADR 0005).** A monitor points to a URL chosen by the user, so the server must not become a bridge into the internal network. Registration and the worker accept only http and https and reject private, loopback and link-local IPs, resolved at check time.
+
+**Best-effort alerts (ADR 0008).** A failing channel does not block the others or the processing of checks.
+
+**JWT bearer (ADR 0006)** and **a public status page per account (ADR 0009)**, showing only monitors marked as public.
+
+## What went wrong and known limits
+
+**False "down" behind anti-bot protection.** The worker uses `httpx`, with no browser. A CDN that blocks by HTTP/TLS fingerprint can return 403 for a site that works in a browser. Instead of trying to work around it, I documented the fix: allowlist the worker's IP in the CDN.
+
+**DNS rebinding is not closed yet.** SSRF protection resolves the IP at check time, but a domain can change IP between the check and the connection. It is recorded in the ADR as the next hardening step.
+
+**Status page without real time.** It currently loads data once per visit; live updates over SSE are the next phase.
+
+## Stack and code
+
+<StackList />
+
+<RepoLink />

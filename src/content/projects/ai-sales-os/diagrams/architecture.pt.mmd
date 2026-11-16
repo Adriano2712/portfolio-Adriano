@@ -1,0 +1,20 @@
+%% Rascunho. Fonte: AI-sales-OS/README.md e docs/ARCHITECTURE.md.
+flowchart TB
+    subgraph Funil[Funil disparado por campanha · cada etapa enfileira a próxima]
+        direction LR
+        D[Descoberta<br/>vários provedores · deduplicação] --> En[Enriquecimento<br/>evidências]
+        En --> W[Análise de site<br/>crawler próprio]
+        W --> B[Análise de negócio<br/>scores + IA]
+        B --> O[Score de oportunidade<br/>determinístico · sem IA]
+        O --> Dash[Painel<br/>com quem falar]
+        Dash -.decisão humana.-> Msg[Rascunho de mensagem<br/>IA sob demanda]
+    end
+    Web[Next.js] -->|HTTPS + JWT| API[FastAPI<br/>monólito modular]
+    API <-->|SQL com contexto de tenant| PG[(PostgreSQL · Supabase<br/>Row Level Security)]
+    API --> R[(Redis)]
+    R --> Wk[Workers RQ]
+    Sch[Agendador<br/>descoberta diária · reenfileira travados] --> R
+    Wk --> Funil
+    B & Msg --> GW[AI Gateway<br/>roteador por tarefa · custo por chamada]
+    GW --> Cl[Claude]
+    GW --> Ge[Gemini]

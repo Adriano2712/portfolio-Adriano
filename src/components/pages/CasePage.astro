@@ -1,0 +1,74 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../Icon.astro';
+import Fact from '../mdx/Fact.astro';
+import Diagram from '../mdx/Diagram.astro';
+import StackList from '../mdx/StackList.astro';
+import RepoLink from '../mdx/RepoLink.astro';
+import Gallery from '../mdx/Gallery.astro';
+import ZoomDialog from '../ZoomDialog.astro';
+import { facts, repos, type FactKey, type Locale } from '../../data/facts';
+import { t, homePath, projectPath } from '../../i18n/utils';
+import { slugOf, type Project } from '../../lib/project';
+
+interface Props { entry: Project; lang: Locale }
+const { entry, lang } = Astro.props;
+const d = entry.data;
+const slug = slugOf(entry);
+const { Content, headings } = await render(entry);
+const toc = headings.filter((h) => h.depth === 2);
+const h = d.highlight;
+const metric = h ? ('fact' in h ? facts[h.fact as FactKey][lang] : h.text) : undefined;
+const isCase = d.kind === 'personal';
+const repo = d.repo ? repos[d.repo as keyof typeof repos] : undefined;
+const kindLabel = isCase ? t(lang, 'projects.personal') : `${t(lang, 'projects.professional')} · ${t(lang, 'projects.notPublic')}`;
+const title = isCase ? `${d.title} · ${t(lang, 'meta.caseSuffix')} · Adriano do Prado Alves` : `${d.title} · Adriano do Prado Alves`;
+---
+<BaseLayout lang={lang} title={title} description={d.summary} navCurrent="projects"
+  alternates={{ pt: projectPath('pt', slug), en: projectPath('en', slug) }}>
+  <div class="mx-auto flex max-w-[1120px] flex-col gap-10 px-4 pb-16 pt-4 md:px-8 md:pb-20 md:pt-6 xl:px-0 xl:pb-24 xl:pt-8">
+    <a href={homePath(lang, 'projetos')} class="inline-flex min-h-11 items-center gap-1.5 self-start text-muted hover:text-text">
+      <Icon name="arrow-left" />{t(lang, 'case.back')}
+    </a>
+
+    <header class:list={['grid items-end gap-8', h && 'lg:grid-cols-[1.4fr_1fr]']}>
+      <div class="flex min-w-0 flex-col gap-4">
+        <p class="font-mono text-sm text-muted">{kindLabel}</p>
+        <h1 class="heading text-[2.5rem] md:text-5xl lg:text-[4rem]">{d.title}</h1>
+        <p class="max-w-[40ch] text-lg text-muted md:text-xl">{d.summary}</p>
+        {repo && (
+          <a href={repo} class="inline-flex min-h-12 items-center gap-2 self-start rounded-md bg-accent px-5 font-semibold text-on-accent no-underline">
+            <Icon name="github" size={18} />{t(lang, 'case.codeOnGithub')}
+          </a>
+        )}
+      </div>
+      {h && (
+        <div class="flex min-w-0 flex-col gap-1.5 rounded-lg border border-border bg-surface p-6">
+          <p class:list={['font-mono font-medium leading-tight text-accent', 'fact' in h ? 'text-[2rem] lg:text-[2.5rem]' : 'text-2xl']}>{metric}</p>
+          <p>{h.label}</p>
+        </div>
+      )}
+    </header>
+
+    <div class:list={['grid items-start gap-16', toc.length > 0 && 'xl:grid-cols-[200px_minmax(0,1fr)]']}>
+      {toc.length > 0 && (
+        <nav aria-label={t(lang, 'case.onThisPage')} class="sticky top-24 hidden flex-col gap-1 border-l-2 border-border xl:flex">
+          {toc.map((x) => (
+            <a href={`#${x.slug}`} class="flex min-h-9 items-center pl-4 text-muted no-underline hover:text-text">{x.text}</a>
+          ))}
+        </nav>
+      )}
+      <article class="prose min-w-0 max-w-[760px]">
+        <Content components={{ Fact, Diagram, StackList, RepoLink, Gallery }} />
+      </article>
+    </div>
+
+    {!isCase && (
+      <a href={homePath(lang, 'projetos')} class="inline-flex min-h-12 items-center self-start rounded-md border border-border bg-surface px-5 font-semibold no-underline">
+        {t(lang, 'case.seeOpenSource')}
+      </a>
+    )}
+  </div>
+  <ZoomDialog lang={lang} />
+</BaseLayout>

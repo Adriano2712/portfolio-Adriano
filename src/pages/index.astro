@@ -1,0 +1,48 @@
+---
+/**
+ * Raiz "/": única rota renderizada no servidor (docs/adr/0001-deteccao-de-idioma-na-raiz.md).
+ * Pessoas: 302 para /pt/ ou /en/ (cookie salvo → país BR → navegador em português → inglês).
+ * Robôs: nunca redirecionados; recebem esta página de escolha, que é o x-default do hreflang.
+ */
+import '../styles/global.css';
+import { detectLang, isBot } from '../i18n/detect';
+import { profile } from '../data/facts';
+
+export const prerender = false;
+
+const headers = { Vary: 'Accept-Language, Cookie, User-Agent', 'Cache-Control': 'private, no-store' };
+const req = Astro.request;
+if (!isBot(req.headers.get('user-agent'))) {
+  const lang = detectLang({
+    cookie: req.headers.get('cookie'),
+    country: req.headers.get('x-vercel-ip-country'),
+    acceptLanguage: req.headers.get('accept-language'),
+  });
+  return new Response(null, { status: 302, headers: { ...headers, Location: `/${lang}/` } });
+}
+for (const [k, v] of Object.entries(headers)) Astro.response.headers.set(k, v);
+const site = Astro.site ?? new URL(Astro.url.origin);
+---
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{profile.name} · Dev Full Stack Júnior / Junior Full Stack Developer</title>
+  <meta name="description" content="Portfólio de Adriano do Prado Alves. Portfolio of Adriano do Prado Alves." />
+  <link rel="canonical" href={new URL('/', site).href} />
+  <link rel="alternate" hreflang="pt-BR" href={new URL('/pt/', site).href} />
+  <link rel="alternate" hreflang="en" href={new URL('/en/', site).href} />
+  <link rel="alternate" hreflang="x-default" href={new URL('/', site).href} />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+</head>
+<body class="flex min-h-screen items-center bg-bg text-text">
+  <main class="mx-auto flex w-full max-w-[560px] flex-col gap-6 px-4 py-16">
+    <h1 class="heading text-3xl">{profile.name}</h1>
+    <ul class="flex flex-col gap-3">
+      <li><a href="/pt/" hreflang="pt-BR" lang="pt-BR" class="flex min-h-14 items-center justify-between rounded-md border border-border bg-surface px-5 font-semibold no-underline">Português <span class="font-mono text-muted">/pt</span></a></li>
+      <li><a href="/en/" hreflang="en" lang="en" class="flex min-h-14 items-center justify-between rounded-md border border-border bg-surface px-5 font-semibold no-underline">English <span class="font-mono text-muted">/en</span></a></li>
+    </ul>
+  </main>
+</body>
+</html>

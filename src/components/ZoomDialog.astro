@@ -1,0 +1,63 @@
+---
+// Zoom em tela cheia para diagramas e imagens (ADR-0003, atualizado na Etapa 4).
+// Gatilhos: [data-zoom-svg] (botão; clona o SVG do figure) e [data-zoom-img] (link; abre a imagem).
+// Sem JavaScript, o link da imagem continua abrindo o arquivo original.
+import { t } from '../i18n/utils';
+import type { Locale } from '../data/facts';
+
+interface Props { lang: Locale }
+const { lang } = Astro.props;
+---
+<dialog id="zoom" aria-label={t(lang, 'case.zoom')}
+  class="m-0 h-dvh max-h-none w-screen max-w-none bg-bg p-0 text-text backdrop:bg-black/70">
+  <div class="flex h-full flex-col">
+    <div class="flex items-center justify-between gap-4 border-b border-border px-4 py-2">
+      <p id="zoom-title" class="truncate text-sm text-muted"></p>
+      <form method="dialog">
+        <button class="flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-md border border-border px-3" autofocus>
+          {t(lang, 'case.close')}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" /></svg>
+        </button>
+      </form>
+    </div>
+    <div id="zoom-body" class="min-h-0 flex-1 overflow-auto p-4" tabindex="0"></div>
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.getElementById('zoom') as HTMLDialogElement | null;
+  const body = document.getElementById('zoom-body');
+  const title = document.getElementById('zoom-title');
+  if (dialog && body && title && typeof dialog.showModal === 'function') {
+    const open = (node: Node, label: string) => {
+      body.replaceChildren(node);
+      title.textContent = label;
+      dialog.showModal();
+    };
+    document.addEventListener('click', (e) => {
+      const target = e.target as Element;
+      const svgBtn = target.closest<HTMLElement>('[data-zoom-svg]');
+      if (svgBtn) {
+        const svg = svgBtn.closest('figure')?.querySelector('svg');
+        if (!svg) return;
+        const clone = svg.cloneNode(true) as SVGElement;
+        clone.removeAttribute('style');
+        clone.style.width = 'max(100%, 900px)';
+        clone.style.height = 'auto';
+        open(clone, svgBtn.dataset.zoomSvg ?? '');
+        return;
+      }
+      const imgLink = target.closest<HTMLAnchorElement>('a[data-zoom-img]');
+      if (imgLink) {
+        e.preventDefault();
+        const img = document.createElement('img');
+        img.src = imgLink.href;
+        img.alt = imgLink.dataset.zoomImg ?? '';
+        img.style.maxWidth = 'none';
+        img.style.width = 'max(100%, 1100px)';
+        open(img, img.alt);
+      }
+    });
+    dialog.addEventListener('close', () => body.replaceChildren());
+  }
+</script>

@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  qualidade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+
+      - name: Conteúdo (números do CV, paridade PT/EN, pendências)
+        run: npm run check:content:strict
+      - name: Tipos
+        run: npm run check
+      - name: Diagramas versionados batem com os .mmd
+        run: npm run diagrams && git diff --exit-code -- 'src/content/projects/*/diagrams/*.svg'
+      - name: Testes unitários (idioma e equivalência com o Indexa)
+        run: npm run test:unit
+      - name: Build
+        run: npm run build
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+      - name: Todo número exibido vem de facts.ts
+        run: npm run check:numbers
+      - name: Testes de ponta a ponta (desktop, tablet, celular)
+        run: npm run test:e2e
+      - name: Lighthouse (celular, todas as páginas, mínimo 95)
+        run: npm run lighthouse
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: relatorios
+          path: |
+            playwright-report/
+            test-results/
+            .lighthouseci/
+          retention-days: 7

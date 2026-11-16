@@ -1,0 +1,63 @@
+---
+title: AI Sales OS
+lang: en
+kind: personal
+order: 1
+summary: Discovers companies, analyzes their digital presence and ranks who the sales team should talk to.
+highlight:
+  fact: aisales.phases
+  label: validated phases, with RLS isolation and controlled AI cost
+stack: [Next.js, React, TypeScript, FastAPI, PostgreSQL, SQLAlchemy, Redis, Claude, Gemini]
+repo: ai-sales-os
+diagrams:
+  - id: architecture
+    caption: Modular monolith. Each funnel step triggers the next through the queue; AI is used only where judgment is needed.
+gallery: []
+---
+
+## Problem
+
+Sales teams spend hours finding and qualifying companies by hand. AI Sales OS does discovery, analysis and ranking on its own, every day, and leaves only the decision to reach out to a human.
+
+## Result
+
+- **<Fact k="aisales.phases" />** validated phases, each with a plan, tests and approval before the next one.
+- Multi-tenant platform with **Row Level Security** in PostgreSQL (Supabase Auth).
+- Daily discovery across multiple providers with deduplication, running unattended in <Fact k="aisales.countries" /> countries.
+- Measured running cost: <Fact k="aisales.dailyCost" />.
+
+## Architecture
+
+<Diagram id="architecture" />
+
+One FastAPI process serves the API; RQ workers process jobs; both share the same domain code. Creating a campaign triggers the whole chain: discovery, enrichment, website analysis, business analysis and scoring. A scheduler runs continuously and re-queues stuck jobs.
+
+## Technical decisions
+
+**Tenant isolation in two layers.** The API only queries with the tenant context set, and Postgres (RLS) would refuse another tenant's rows even if a bug forgot that context.
+
+**AI kept apart from scoring.** An in-house AI Gateway picks the provider per task (Claude or Gemini) and logs the cost of every call. The final opportunity score is deterministic, with no AI call: everything it needs is already collected. An outreach message is generated only when someone decides to reach out.
+
+**AI output validated against a schema.** A response outside the schema becomes an explicit error; nothing invalid is passed along silently.
+
+**Modular monolith, not microservices.** One API process and workers sharing modules. The volume does not justify more moving parts.
+
+**RQ instead of Celery.** The job volume per campaign needs no advanced routing or scheduling; RQ is simpler to run and debug.
+
+**Crawler without a browser.** `httpx` + BeautifulSoup covers most local business websites. Accepted limit: pages that only exist after JavaScript runs come back incomplete, and the system flags that instead of scoring it.
+
+**JWT verified with the project's public keys (JWKS, `ES256`).** No shared secret, which prevents algorithm confusion.
+
+## What went wrong
+
+**Technical failures scored as bad websites.** A site blocked by anti-bot protection or offline got a zero quality score. Checking the real data: <Fact k="aisales.zeroScoreRows" /> analyses with a zero score were access failures, none of them an actually bad website. I fixed it with an explicit status (blocked, offline, requires JavaScript, timeout) and a migration that corrected the history. End-to-end validation then found a second case of the same bug, in pages that only render with JavaScript.
+
+**A test tenant spending real credits.** An interrupted test left a tenant with no users in the database. The per-country discovery scheduler picked it up and started a real campaign, with real API cost. Every "for all tenants" sweep now requires at least one member.
+
+**Duplicate data lost.** When a second provider found the same company with a phone number or website, the new data never reached the main record. I traced the path from source to screen before changing anything; the fix fills only empty fields and has a regression test.
+
+## Stack and code
+
+<StackList />
+
+<RepoLink />

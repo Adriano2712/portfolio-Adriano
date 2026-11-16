@@ -1,0 +1,35 @@
+---
+import { t, type Alternates } from '../i18n/utils';
+import type { Locale } from '../data/facts';
+
+interface Props { lang: Locale; alternates: Alternates }
+const { lang, alternates } = Astro.props;
+const items: { code: Locale; label: string; htmlLang: string }[] = [
+  { code: 'pt', label: 'PT', htmlLang: 'pt-BR' },
+  { code: 'en', label: 'EN', htmlLang: 'en' },
+];
+---
+<div role="group" aria-label={t(lang, 'lang.switch')} class="flex overflow-hidden rounded-md border border-border">
+  {items.map((it) => (
+    <a
+      href={alternates[it.code]}
+      hreflang={it.htmlLang}
+      lang={it.htmlLang}
+      data-set-lang={it.code}
+      aria-current={it.code === lang ? 'true' : undefined}
+      class:list={[
+        'flex min-h-11 min-w-11 items-center justify-center font-mono text-sm no-underline',
+        it.code === lang ? 'bg-surface-2 font-bold text-text' : 'text-muted hover:text-text',
+      ]}
+    >{it.label}<span class="sr-only"> · {t(it.code, it.code === 'pt' ? 'lang.pt' : 'lang.en')}</span></a>
+  ))}
+</div>
+
+<script>
+  // Salva a escolha explícita de idioma; a raiz "/" lê este cookie (docs/adr/0003).
+  for (const a of document.querySelectorAll<HTMLAnchorElement>('a[data-set-lang]')) {
+    a.addEventListener('click', () => {
+      document.cookie = `lang=${a.dataset.setLang}; path=/; max-age=31536000; samesite=lax`;
+    });
+  }
+</script>

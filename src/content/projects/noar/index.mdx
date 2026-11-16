@@ -1,0 +1,58 @@
+---
+title: NoAr
+lang: pt
+kind: personal
+order: 3
+summary: Avisa quando um site ou API cai, com histórico, incidentes e página de status pública, sem fila externa.
+highlight:
+  text: SKIP LOCKED
+  label: agendamento no próprio PostgreSQL, sem fila externa
+stack: [Python, FastAPI, SQLAlchemy, PostgreSQL, Next.js, TypeScript, Tailwind]
+repo: noar
+diagrams:
+  - id: architecture
+    caption: API e worker no mesmo código; o Postgres é ao mesmo tempo banco e agendador.
+gallery: []
+statusPage: null # opcional: URL pública da página de status, se o NoAr for publicado (Etapa 4)
+---
+
+## Problema
+
+Saber que um site ou API caiu antes do cliente avisar, com histórico para entender o que aconteceu, sem montar uma fila externa só para agendar verificações.
+
+## Resultado
+
+- Monitor multiusuário com histórico de verificações, incidentes abertos e fechados automaticamente e página de status pública por conta.
+- Alertas por e-mail, Telegram e webhook.
+- Autenticação JWT, isolamento entre contas e proteção contra SSRF.
+- Testes em três camadas: pytest (API e worker), Vitest (interface) e Playwright (ponta a ponta).
+
+## Arquitetura
+
+<Diagram id="architecture" />
+
+O worker é um processo separado que usa o mesmo código da API. Ele busca as verificações vencidas direto no Postgres com `SELECT … FOR UPDATE SKIP LOCKED`: vários workers podem rodar juntos sem pegar a mesma verificação, e não existe Redis nem fila para operar.
+
+## Decisões técnicas
+
+**Agendamento no Postgres, sem fila externa (ADR 0003).** `SKIP LOCKED` dá distribuição de trabalho entre workers com o banco que já existe. Uma peça a menos para subir, monitorar e fazer backup.
+
+**Proteção contra SSRF (ADR 0005).** Um monitor aponta para uma URL escolhida pelo usuário, então o servidor não pode virar ponte para a rede interna. O cadastro e o worker aceitam só http e https e recusam IPs privados, de loopback e link-local, resolvidos na hora da verificação.
+
+**Alertas em melhor esforço (ADR 0008).** Um canal com falha não bloqueia os outros nem o processamento das verificações.
+
+**JWT bearer (ADR 0006)** e **página de status pública por conta (ADR 0009)**, que mostra só os monitores marcados como públicos.
+
+## O que deu errado e limites conhecidos
+
+**Falso "fora do ar" atrás de proteção anti-bot.** O worker usa `httpx`, sem navegador. Uma CDN que bloqueia pela assinatura HTTP/TLS pode responder 403 a um site que funciona no navegador. Em vez de tentar contornar, documentei a solução: liberar o IP do worker na CDN.
+
+**DNS rebinding ainda não está fechado.** A proteção contra SSRF resolve o IP na verificação, mas um domínio pode trocar de IP entre a checagem e a conexão. Está registrado no ADR como próximo endurecimento.
+
+**Página de status sem tempo real.** Hoje ela carrega os dados uma vez por visita; atualização ao vivo por SSE é a próxima fase.
+
+## Stack e código
+
+<StackList />
+
+<RepoLink />

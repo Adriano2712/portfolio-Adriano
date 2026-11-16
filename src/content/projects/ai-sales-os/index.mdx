@@ -1,0 +1,63 @@
+---
+title: AI Sales OS
+lang: pt
+kind: personal
+order: 1
+summary: Descobre empresas, analisa a presença digital delas e prioriza com quem a equipe de vendas deve falar.
+highlight:
+  fact: aisales.phases
+  label: fases validadas, com isolamento por RLS e custo de IA controlado
+stack: [Next.js, React, TypeScript, FastAPI, PostgreSQL, SQLAlchemy, Redis, Claude, Gemini]
+repo: ai-sales-os
+diagrams:
+  - id: architecture
+    caption: Monólito modular. Cada etapa do funil dispara a próxima pela fila; a IA entra só onde há julgamento.
+gallery: []
+---
+
+## Problema
+
+Equipes de vendas gastam horas achando e qualificando empresas à mão. O AI Sales OS faz a descoberta, a análise e a priorização sozinho, todos os dias, e deixa para o humano só a decisão de abordar.
+
+## Resultado
+
+- **<Fact k="aisales.phases" />** fases validadas, cada uma com plano, testes e aprovação antes da próxima.
+- Plataforma multi-tenant com **Row Level Security** no PostgreSQL (Supabase Auth).
+- Descoberta diária em vários provedores, com deduplicação, rodando sem supervisão em <Fact k="aisales.countries" /> países.
+- Custo de operação medido: <Fact k="aisales.dailyCost" />.
+
+## Arquitetura
+
+<Diagram id="architecture" />
+
+Um processo FastAPI serve a API; workers RQ processam os jobs; os dois usam o mesmo código de domínio. Criar uma campanha dispara a cadeia inteira: descoberta, enriquecimento, análise de site, análise de negócio e pontuação. Um agendador roda o tempo todo e reenfileira jobs travados.
+
+## Decisões técnicas
+
+**Isolamento de tenant em duas camadas.** A API só consulta com o contexto do tenant definido, e o Postgres (RLS) recusaria linhas de outro tenant mesmo se esse contexto fosse esquecido por um bug.
+
+**IA separada do score.** Um AI Gateway próprio decide o provedor por tarefa (Claude ou Gemini) e registra o custo de cada chamada. A pontuação final da oportunidade é determinística, sem chamada de IA: tudo o que ela usa já foi coletado. Mensagem de abordagem só é gerada quando alguém decide abordar.
+
+**Saída da IA validada por esquema.** Resposta fora do esquema vira erro explícito; nada inválido passa adiante em silêncio.
+
+**Monólito modular, não microsserviços.** Um processo de API e workers que compartilham módulos. O volume não justifica mais peças.
+
+**RQ em vez de Celery.** O volume de jobs por campanha não precisa de roteamento nem agendamento avançado; RQ é mais simples de rodar e depurar.
+
+**Crawler sem navegador.** `httpx` + BeautifulSoup cobre a maioria dos sites de comércio local. Limite aceito: páginas que só existem depois do JavaScript ficam incompletas, e o sistema marca isso em vez de dar nota.
+
+**JWT verificado pelas chaves públicas do projeto (JWKS, `ES256`).** Nenhum segredo compartilhado, o que evita confusão de algoritmo.
+
+## O que deu errado
+
+**Falha técnica pontuada como site ruim.** Site bloqueado por anti-bot ou fora do ar recebia nota zero de qualidade. Conferindo os dados reais: <Fact k="aisales.zeroScoreRows" /> análises com nota zero eram falhas de acesso, nenhuma era um site ruim de verdade. Corrigi com um status explícito (bloqueado, fora do ar, exige JavaScript, tempo esgotado) e uma migração que corrigiu o histórico. A validação de ponta a ponta achou uma segunda ocorrência do mesmo erro, em páginas que só renderizam com JavaScript.
+
+**Tenant de teste gastando crédito real.** Um teste interrompido deixou um tenant sem nenhum usuário no banco. O agendador de descoberta por país o encontrou e iniciou uma campanha real, com custo de API. Agora toda varredura "para todos os tenants" exige pelo menos um membro.
+
+**Dado de duplicata perdido.** Quando um segundo provedor achava a mesma empresa com telefone ou site, o dado novo não chegava ao registro principal. Rastreei o caminho da fonte até a tela antes de mexer; a correção preenche só campos vazios e ganhou teste de regressão.
+
+## Stack e código
+
+<StackList />
+
+<RepoLink />

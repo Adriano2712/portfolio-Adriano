@@ -1,0 +1,46 @@
+{
+  "name": "portfolio-adriano",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "check": "astro check",
+    "check:content": "node scripts/check-content.mjs",
+    "check:content:strict": "node scripts/check-content.mjs --strict",
+    "diagrams": "node scripts/render-diagrams.mjs",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "test": "npm run check:content && npm run test:unit && npm run test:e2e",
+    "sgs:snapshot": "node scripts/sgs-snapshot.mjs",
+    "check:numbers": "node scripts/check-built-numbers.mjs",
+    "lighthouse": "lhci autorun --config=lighthouserc.cjs"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^8.1.6",
+    "@astrojs/react": "^7.1.9",
+    "@astrojs/sitemap": "^3.7.5",
+    "@astrojs/vercel": "^11.0.22",
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "@tailwindcss/vite": "^4.3.5",
+    "astro": "^7.4.12",
+    "decimal.js": "^10.6.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "tailwindcss": "^4.3.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@lhci/cli": "^0.16.1",
+    "@playwright/test": "^1.65.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "mermaid": "^12.3.0",
+    "typescript": "^6.0.3",
+    "vitest": "^5.1.0"
+  }
+}

@@ -1,0 +1,28 @@
+---
+import '../styles/global.css';
+import { ui } from '../i18n/ui';
+---
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{ui.pt['notFound.title']} · {ui.en['notFound.title']}</title>
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+</head>
+<body class="flex min-h-screen items-center bg-bg text-text">
+  <main class="mx-auto flex w-full max-w-[560px] flex-col gap-8 px-4 py-16">
+    <section class="flex flex-col gap-3">
+      <h1 class="heading text-3xl">{ui.pt['notFound.title']}</h1>
+      <p class="text-muted">{ui.pt['notFound.text']}</p>
+      <a href="/pt/" class="inline-flex min-h-11 items-center self-start font-semibold text-accent">{ui.pt['notFound.back']}</a>
+    </section>
+    <section lang="en" class="flex flex-col gap-3 border-t border-border pt-8">
+      <h2 class="heading text-2xl">{ui.en['notFound.title']}</h2>
+      <p class="text-muted">{ui.en['notFound.text']}</p>
+      <a href="/en/" class="inline-flex min-h-11 items-center self-start font-semibold text-accent">{ui.en['notFound.back']}</a>
+    </section>
+  </main>
+</body>
+</html>

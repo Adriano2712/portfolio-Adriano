@@ -1,0 +1,61 @@
+Snapshot do texto de CV_ADRIANO_V8_PT.pdf (16/11/2026), sem a linha de telefone. Usado por scripts/check-content.mjs.
+Ao trocar de versão do CV: substituir este arquivo, atualizar CV_VERSION em src/data/facts.ts e os PDFs em public/cv/.
+Os PDFs públicos em public/cv/ são o CV V8 sem a linha do telefone (decisão de 16/11/2026).
+
+Adriano do Prado Alves
+Desenvolvedor Full Stack Júnior · React, TypeScript, Python e C#/.NET · Sorocaba, SP · Remoto (Brasil)
+RESUMO
+Desenvolvedor Júnior formado em Análise e Desenvolvimento de Sistemas, atualmente cursando Bacharelado em Ciência da
+Computação. Construo aplicações completas (APIs REST, bancos de dados relacionais, interfaces em React/TypeScript) com C#/.NET
+e Python, aplicando programação orientada a objetos, Git e testes automatizados. Utilizo assistentes de IA para programar e já
+desenvolvi uma camada de IA própria com Claude e Gemini em um produto real.
+EXPERIÊNCIA PROFISSIONAL
+Desenvolvedor Full Stack Júnior · OPMOBILITY · Set/2025 – Set/2026
+• Desenvolvi e mantive funcionalidades em aplicações web com React, TypeScript e APIs REST em Node.js e Python
+• Modelei e consultei bancos de dados relacionais (PostgreSQL) e escrevi testes unitários e de integração
+• Versionei código com Git/GitHub, abri pull requests e participei de code reviews
+• Atuei em time ágil, com entregas incrementais e correção de bugs em produção
+Jovem Aprendiz · CBA – Companhia Brasileira de Alumínio · Jan/2022 – Dez/2023
+PROJETOS
+AI Sales OS – Motor de Inteligência Comercial | Projeto pessoal · github.com/Adriano2712/AI-sales-OS
+Plataforma multi-tenant que descobre empresas, analisa sua presença digital e prioriza oportunidades de venda para equipes
+comerciais.
+• Isolei os dados entre clientes com Row Level Security no PostgreSQL (Supabase Auth), com jobs assíncronos em Redis + RQ e
+descoberta diária de empresas em múltiplos provedores, com deduplicação
+• Construí uma camada de IA própria (AI Gateway) com Claude e Gemini e pontuação determinística separada para controlar custos;
+evoluída ao longo de mais de 25 fases validadas
+Tecnologias: Next.js, React, TypeScript, FastAPI, PostgreSQL, SQLAlchemy, Redis, Claude, Gemini
+Indexa – Reajuste Automático de Contratos | Projeto pessoal
+Calcula e envia automaticamente o reajuste anual de contratos recorrentes (aluguéis, mensalidades) com base no índice oficial, no lugar
+de planilhas.
+• Construí um motor de cálculo financeiro isolado do restante do sistema, usando decimal e uma única etapa de arredondamento,
+validado contra o IPCA oficial do Banco Central: 126 de 129 períodos idênticos e os 3 restantes com diferença de 0,01 p.p.
+• Integrei a API do Banco Central (SGS) com retentativas e circuit breaker: se a fonte cai, usa o último dado; se um índice é revisado,
+recalcula apenas os reajustes ainda não enviados
+• Implementei jobs agendados (Hangfire) seguros contra execução duplicada ou paralela, com a garantia aplicada no próprio banco de
+dados, e envio de cartas de reajuste em PDF por e-mail
+• Escrevi cerca de 290 testes automatizados (FsCheck, Testcontainers), configurei CI/CD no GitHub Actions e deploy com Docker
+Compose, e registrei 15 decisões de arquitetura (ADRs)
+Tecnologias: C#/.NET, Hangfire, PostgreSQL, React, TypeScript, Docker, GitHub Actions
+NoAr – Monitor de Disponibilidade de Sites e APIs | Projeto pessoal · github.com/Adriano2712/noAr
+Monitor de disponibilidade multiusuário com histórico de verificações, incidentes, alertas e página de status pública.
+• Agendei as verificações no próprio PostgreSQL (SKIP LOCKED), sem fila externa
+• Implementei incidentes automáticos, alertas por e-mail, Telegram e webhook, e uma página de status pública por conta
+• Apliquei autenticação JWT, isolamento entre contas, proteção contra SSRF e testes (pytest, Vitest, Playwright)
+Tecnologias: Python, FastAPI, SQLAlchemy, PostgreSQL, Next.js, TypeScript, Tailwind
+SGOR – Sistema de Gestão Operacional e Rastreabilidade (projeto profissional): ERP para uma cooperativa de apicultores, com
+rastreabilidade por lote, etiquetas com QR Code, autenticação JWT com quatro perfis de acesso e log de auditoria (FastAPI, React,
+TypeScript).
+HABILIDADES TÉCNICAS
+• Linguagens: TypeScript, JavaScript, C#, Python, SQL, HTML, CSS
+• Back-end e dados: .NET, FastAPI, Node.js, PostgreSQL, SQLAlchemy, Prisma, Redis, SQLite
+• Front-end: React, Next.js, Tailwind CSS
+• IA: Claude API, Gemini, RAG e embeddings, assistentes de IA para programação
+• DevOps e testes: Git, Docker, GitHub Actions (CI/CD), pytest, Vitest, Playwright, Testcontainers
+FORMAÇÃO E CERTIFICAÇÕES
+• Bacharelado em Ciência da Computação · UNIP · Jan/2025 – Dez/2028 (em andamento)
+• Tecnólogo em Análise e Desenvolvimento de Sistemas · ATHON Ensino Superior · Jan/2022 – Dez/2024 (concluído)
+• Técnico em Eletroeletrônica · SENAI · Jan/2022 – Dez/2023
+• Certificações: AWS Academy Cloud Foundations · Oracle Cloud Infrastructure · Google Cloud Foundations · React.js com TypeScript
+IDIOMAS
+Português (nativo) · Inglês (intermediário, leitura técnica e comunicação escrita)

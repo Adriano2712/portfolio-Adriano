@@ -1,0 +1,13 @@
+---
+import { certifications } from '../../data/facts';
+import { t, getLangFromUrl } from '../../i18n/utils';
+import Chip from '../Chip.astro';
+
+const lang = getLangFromUrl(Astro.url);
+---
+<div class="not-prose flex flex-col gap-3">
+  <h3 class="font-mono text-sm font-medium text-muted">{t(lang, 'about.certifications')}</h3>
+  <ul class="flex list-none flex-wrap gap-2">
+    {certifications.map((c) => <li><Chip variant="outline">{c[lang]}</Chip></li>)}
+  </ul>
+</div>

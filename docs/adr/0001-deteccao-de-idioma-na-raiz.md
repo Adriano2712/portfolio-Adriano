@@ -1,0 +1,7 @@
+# ADR-0001 · Detecção de idioma só na raiz, com uma rota renderizada no servidor
+
+- **Decisão:** o site é estático (`output: 'static'`), exceto `src/pages/index.astro`, com `prerender = false`, que roda como função na Vercel (`@astrojs/vercel`). Ordem: cookie `lang` → cabeçalho `x-vercel-ip-country` = BR → idioma preferido do navegador começa com `pt` → `en`. Resposta 302 com `Cache-Control: private, no-store` e `Vary`. Robôs (lista em `src/i18n/detect.ts`) e requisições sem user-agent recebem `200` com links para `/pt/` e `/en/`; essa página é o `x-default` do hreflang.
+- **Alternativas:** Vercel Edge Middleware (mais rápido, mas outra peça para configurar e testar); redirecionar no navegador com JavaScript (pisca a tela e robôs não executam); só `Accept-Language` sem país.
+- **Motivo:** uma única rota dinâmica, testável como função pura (`detectLang`, testes em `tests/unit/detect.test.ts`) e em ponta a ponta (`tests/e2e/site.spec.ts`). As páginas internas nunca redirecionam.
+- **Custo de reverter:** baixo. Trocar para middleware muda um arquivo; tornar a raiz estática é remover `prerender = false` e servir a página de escolha.
+- **Gatilho:** custo ou latência da função na raiz, ou a Vercel deixar de enviar `x-vercel-ip-country`. [VALIDAR] o cabeçalho no primeiro deploy (Etapa 5).

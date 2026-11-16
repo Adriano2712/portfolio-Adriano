@@ -1,0 +1,94 @@
+---
+title: Indexa
+lang: pt
+kind: personal
+order: 2
+summary: Calcula e envia o reajuste anual de contratos recorrentes com o índice oficial, no lugar de planilhas.
+highlight:
+  fact: indexa.oracleMatched
+  label: períodos idênticos ao IPCA oficial do Banco Central
+stack: [C#/.NET, Hangfire, PostgreSQL, React, TypeScript, Docker, GitHub Actions, FsCheck, Testcontainers]
+repo: indexa
+diagrams:
+  - id: architecture
+    caption: Um container com API, painel e jobs; o motor de cálculo é uma biblioteca pura.
+  - id: lifecycle
+    caption: Ciclo de vida de um reajuste. Notificado ou aplicado não muda; correção vira nova revisão.
+gallery:
+  - src: ./img/indexa-painel.png
+    alt: Painel do Indexa com contratos ativos, valor mensal sob gestão, próximos reajustes com situação e histórico recente com a regra aplicada.
+  - src: ./img/indexa-lista-de-contratos.png
+    alt: Lista de contratos com índice, valor atual, data do próximo reajuste e cláusulas como teto, piso e não redução.
+  - src: ./img/indexa-novo-contrato.png
+    alt: Formulário de novo contrato com cliente, valor inicial, data-base, índice, periodicidade, defasagem, teto, piso e opção de não reduzir o valor.
+  - src: ./img/indexa-detalhe-retroativos.png
+    alt: Detalhe de um contrato de aluguel com linha do tempo de reajustes retroativos já aplicados, cada um com janela de índice e carta em PDF.
+  - src: ./img/indexa-detalhe-nao-reducao.png
+    alt: Detalhe de um contrato reajustado pelo IGP-M com a cláusula de não redução, mostrando um reajuste aplicado e o próximo já calculado.
+  - src: ./img/indexa-configuracoes.png
+    alt: Tela de configurações dos avisos de reajuste, com canal de e-mail, antecedência em dias e e-mail de destino.
+---
+
+## Problema
+
+Imobiliárias, condomínios e escritórios controlam reajustes em planilha: a data passa, o índice ou o período sai errado e não fica registro de como o valor foi calculado.
+
+## Resultado
+
+- **<Fact k="indexa.oracleMatched" />** períodos idênticos ao IPCA acumulado oficial do Banco Central; os outros <Fact k="indexa.oracleOff" /> com diferença de <Fact k="indexa.oracleDiff" />.
+- **<Fact k="indexa.tests" />** testes automatizados: motor, domínio e integração com Postgres e servidor de e-mail reais (Testcontainers).
+- **<Fact k="indexa.adrs" />** decisões de arquitetura registradas (ADRs).
+- CI/CD no GitHub Actions e deploy com Docker Compose.
+
+## Arquitetura
+
+<Diagram id="architecture" />
+
+O motor de cálculo não conhece banco, rede nem relógio: recebe a data de hoje e os índices por parâmetro. Isso permite testá-lo contra a série oficial inteira sem subir nada.
+
+Fórmula, com um único arredondamento no fim:
+
+```text
+acumulado  = Π (1 + variação_mensal / 100) − 1      (sem arredondar)
+percentual = limitar(acumulado, piso, teto)
+novo valor = valor_atual × (1 + percentual)
+se "não reduzir" e novo valor < valor atual → mantém o valor atual
+novo valor = arredondar(novo valor, 2 casas, meio para longe do zero)
+```
+
+<Diagram id="lifecycle" />
+
+## Decisões técnicas
+
+**Um único arredondamento, em `decimal` (ADR-04).** Arredondar o percentual antes de multiplicar acumula erro. No exemplo do README, <Fact k="indexa.exampleBase" /> com IPCA dá <Fact k="indexa.exampleCorrect" />; arredondando o percentual antes, daria <Fact k="indexa.exampleEarlyRounding" />.
+
+**Acumulado pela composição das variações mensais (ADR-07).** Funciona para qualquer janela e índice. Conferido contra a série oficial de IPCA em 12 meses: <Fact k="indexa.oracleMatched" /> iguais. A diferença nos outros <Fact k="indexa.oracleOff" /> vem do IBGE, que acumula pelo número-índice, enquanto as variações mensais são publicadas já arredondadas. A divergência ficou documentada, não escondida.
+
+**Nunca calcular com dado incompleto (ADR-06).** Se falta um mês da janela, o reajuste fica *Aguardando índice* e o job tenta de novo no dia seguinte. O produto promete o índice oficial, então não há estimativa.
+
+**Garantia contra execução duplicada no banco, não no agendador (ADR-10).** Índice único parcial por contrato e ciclo, chave de idempotência e controle otimista de versão. Testado com <Fact k="indexa.parallelRuns" /> sem gravar nada duas vezes.
+
+**Histórico imutável com trigger (ADR-11).** Reajuste notificado ou aplicado não muda, nem por um UPDATE manual. Correção gera nova revisão e a anterior vira *Substituído*.
+
+**Fonte de índices atrás de uma interface (ADR-08).** API SGS do Banco Central com timeout, retentativas e circuit breaker. Se a fonte cai, o processamento segue com o último dado; se um índice é revisado, só os reajustes ainda não enviados são recalculados.
+
+**Jobs no próprio Postgres (ADR-09).** Hangfire com armazenamento no mesmo banco: menos serviços para operar, e retentativa e painel de falhas já prontos.
+
+## O que foi revisto
+
+- **Sessão:** a primeira versão guardava o token no `localStorage`. Migrei para cookie `HttpOnly` + `SameSite=Strict`, para que uma falha de XSS não consiga ler o token (ADR-15).
+- **Plataforma:** o projeto começou em .NET 8 e migrou para .NET 10 (LTS) antes do deploy, sem mudança de código (ADR-14).
+- **Casos que o cálculo precisou cobrir:** o IGP-M acumulou <Fact k="indexa.igpm2025" />. Sem cláusula, o valor cai; com "não reduzir", fica igual e o acumulado negativo continua registrado (ADR-03).
+- **Limites atuais:** ainda não publicado em produção; sair da sessão apaga o cookie, mas não revoga o token no servidor.
+
+## Telas
+
+<Gallery />
+
+Dados fictícios; índices reais do Banco Central.
+
+## Stack e código
+
+<StackList />
+
+<RepoLink />

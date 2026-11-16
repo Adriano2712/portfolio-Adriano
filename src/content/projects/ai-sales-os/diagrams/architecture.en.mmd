@@ -1,0 +1,20 @@
+%% Draft. Source: AI-sales-OS/README.md and docs/ARCHITECTURE.md.
+flowchart TB
+    subgraph Funnel[Funnel triggered by a campaign · each step queues the next]
+        direction LR
+        D[Discovery<br/>multiple providers · deduplication] --> En[Enrichment<br/>evidence]
+        En --> W[Website analysis<br/>in-house crawler]
+        W --> B[Business analysis<br/>scores + AI]
+        B --> O[Opportunity score<br/>deterministic · no AI]
+        O --> Dash[Dashboard<br/>who to talk to]
+        Dash -.human decision.-> Msg[Message draft<br/>AI on demand]
+    end
+    Web[Next.js] -->|HTTPS + JWT| API[FastAPI<br/>modular monolith]
+    API <-->|SQL with tenant context| PG[(PostgreSQL · Supabase<br/>Row Level Security)]
+    API --> R[(Redis)]
+    R --> Wk[RQ workers]
+    Sch[Scheduler<br/>daily discovery · re-queues stuck jobs] --> R
+    Wk --> Funnel
+    B & Msg --> GW[AI Gateway<br/>per-task router · cost per call]
+    GW --> Cl[Claude]
+    GW --> Ge[Gemini]

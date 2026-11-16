@@ -1,0 +1,42 @@
+---
+import LanguageSwitch from './LanguageSwitch.astro';
+import { t, homePath, type Alternates } from '../i18n/utils';
+import type { Locale } from '../data/facts';
+
+interface Props { lang: Locale; alternates: Alternates; current: 'home' | 'projects' }
+const { lang, alternates, current } = Astro.props;
+const links = [
+  { href: homePath(lang, 'projetos'), label: t(lang, 'nav.projects'), active: current === 'projects' },
+  { href: homePath(lang, 'demo'), label: t(lang, 'nav.demo') },
+  { href: homePath(lang, 'engenharia'), label: t(lang, 'nav.engineering') },
+  { href: homePath(lang, 'sobre'), label: t(lang, 'nav.about') },
+  { href: homePath(lang, 'contato'), label: t(lang, 'nav.contact') },
+];
+---
+<header class="sticky top-0 z-40 border-b border-border bg-bg">
+  <nav aria-label={t(lang, 'nav.main')} class="mx-auto flex h-16 max-w-[1120px] items-center justify-between gap-4 px-4 md:px-8 xl:px-0">
+    <a href={homePath(lang)} class="flex min-h-11 items-center font-mono text-base font-bold no-underline">adriano.prado</a>
+
+    <ul class="hidden items-center gap-4 md:flex lg:gap-7">
+      {links.map((l) => (
+        <li><a href={l.href} aria-current={l.active ? 'page' : undefined}
+          class:list={['flex min-h-11 items-center no-underline hover:text-text', l.active ? 'text-text' : 'text-muted']}>{l.label}</a></li>
+      ))}
+    </ul>
+
+    <div class="flex items-center gap-2">
+      <LanguageSwitch lang={lang} alternates={alternates} />
+      <details class="group relative md:hidden">
+        <summary class="flex size-11 cursor-pointer list-none items-center justify-center rounded-md border border-border [&::-webkit-details-marker]:hidden">
+          <span class="sr-only">{t(lang, 'nav.menu')}</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
+        </summary>
+        <ul class="absolute right-0 top-14 w-56 rounded-lg border border-border bg-surface p-2 shadow-lg">
+          {links.map((l) => (
+            <li><a href={l.href} class="flex min-h-11 items-center rounded-md px-3 no-underline hover:bg-surface-2">{l.label}</a></li>
+          ))}
+        </ul>
+      </details>
+    </div>
+  </nav>
+</header>

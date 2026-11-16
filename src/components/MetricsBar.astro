@@ -1,0 +1,21 @@
+---
+import Icon from './Icon.astro';
+import { engineeringMetrics, facts, type FactKey, type Locale } from '../data/facts';
+import { t } from '../i18n/utils';
+
+interface Props { lang: Locale }
+const { lang } = Astro.props;
+---
+<ul class="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border md:grid-cols-3 lg:grid-cols-5">
+  {engineeringMetrics.map((m) => (
+    <li class="flex min-w-0 flex-col gap-1.5 bg-bg p-5">
+      <p class="font-mono text-[2rem] font-medium leading-tight text-accent lg:text-[2.5rem]">
+        {m.value ? facts[m.value as FactKey][lang] : (m as { text: string }).text}
+      </p>
+      <p>{m.label[lang]}</p>
+      <a href={m.evidence} class="mt-auto inline-flex min-h-11 items-center gap-1.5 text-sm text-muted hover:text-text">
+        {t(lang, 'engineering.evidence')}<Icon name="arrow-right" size={14} /><span class="sr-only">: {m.label[lang]}</span>
+      </a>
+    </li>
+  ))}
+</ul>

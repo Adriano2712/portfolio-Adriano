@@ -1,0 +1,15 @@
+%% Rascunho. Fonte: indexa/README.md (Ciclo de vida de um reajuste).
+stateDiagram-v2
+    state "Aguardando índice" as Aguardando
+    state "Calculado" as Calculado
+    state "Notificado" as Notificado
+    state "Aplicado" as Aplicado
+    state "Substituído" as Substituido
+    [*] --> Aguardando: entra na antecedência<br/>ou cadastro retroativo
+    Aguardando --> Calculado: todos os meses da janela publicados
+    Calculado --> Notificado: e-mail + carta PDF enviados
+    Calculado --> Aplicado: data chegou ou retroativo
+    Notificado --> Aplicado: data chegou
+    Calculado --> Substituido: índice revisado pela fonte
+    Aplicado --> Substituido: retroativo nunca comunicado<br/>(correção de data-base)
+    Substituido --> [*]

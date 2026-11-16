@@ -1,0 +1,59 @@
+Snapshot of CV_ADRIANO_V8_EN.pdf text (12/11/2026), without the phone line. Used by scripts/check-content.mjs.
+
+Adriano do Prado Alves
+Junior Full Stack Developer · React, TypeScript, Python and C#/.NET · Sorocaba, SP · Remote (Brazil)
+SUMMARY
+Junior Developer with a degree in Systems Analysis and Development, currently pursuing a Bachelor's in Computer Science. I
+build complete applications (REST APIs, relational databases, React/TypeScript interfaces) with C#/.NET and Python,
+applying object-oriented programming, Git and automated testing. I use AI coding assistants and have already built an
+in-house AI layer with Claude and Gemini in a real product.
+PROFESSIONAL EXPERIENCE
+Junior Full Stack Developer · OPMOBILITY · Sep/2025 – Sep/2026
+• Developed and maintained features in web applications with React, TypeScript and REST APIs in Node.js and Python
+• Modeled and queried relational databases (PostgreSQL) and wrote unit and integration tests
+• Versioned code with Git/GitHub, opened pull requests and took part in code reviews
+• Worked in an agile team, with incremental deliveries and production bug fixes
+Apprentice (Jovem Aprendiz) · CBA – Companhia Brasileira de Alumínio · Jan/2022 – Dec/2023
+PROJECTS
+AI Sales OS – Commercial Intelligence Engine | Personal project · github.com/Adriano2712/AI-sales-OS
+Multi-tenant platform that discovers companies, analyzes their digital presence and prioritizes sales opportunities for sales
+teams.
+• Isolated data between customers with Row Level Security in PostgreSQL (Supabase Auth), with asynchronous jobs in Redis
++ RQ and daily company discovery across multiple providers with deduplication
+• Built an in-house AI layer (AI Gateway) with Claude and Gemini and separate deterministic scoring to control cost; evolved
+through more than 25 validated phases
+Technologies: Next.js, React, TypeScript, FastAPI, PostgreSQL, SQLAlchemy, Redis, Claude, Gemini
+Indexa – Automatic Contract Adjustment | Personal project
+Automatically calculates and sends the annual adjustment of recurring contracts (rents, tuition) based on the official index,
+instead of spreadsheets.
+• Built a financial calculation engine isolated from the rest of the system, using decimal and a single rounding step, validated
+against the official IPCA from the Central Bank of Brazil: 126 of 129 periods identical and the remaining 3 off by 0.01 p.p.
+• Integrated the Central Bank of Brazil API (SGS) with retries and a circuit breaker: if the source goes down, it uses the last
+data; if an index is revised, it recalculates only the adjustments not yet sent
+• Implemented scheduled jobs (Hangfire) that are safe against duplicate or parallel execution, with the guarantee enforced in
+the database itself, and sending of adjustment letters as PDF by email
+• Wrote about 290 automated tests (FsCheck, Testcontainers), set up CI/CD on GitHub Actions and deployment with Docker
+Compose, and recorded 15 architecture decisions (ADRs)
+Technologies: C#/.NET, Hangfire, PostgreSQL, React, TypeScript, Docker, GitHub Actions
+NoAr – Website and API Uptime Monitor | Personal project · github.com/Adriano2712/noAr
+Multi-user uptime monitor with check history, incidents, alerts and a public status page.
+• Scheduled checks in PostgreSQL itself (SKIP LOCKED), with no external queue
+• Implemented automatic incidents, alerts via email, Telegram and webhook, and a public status page per account
+• Applied JWT authentication, isolation between accounts, SSRF protection and tests (pytest, Vitest, Playwright)
+Technologies: Python, FastAPI, SQLAlchemy, PostgreSQL, Next.js, TypeScript, Tailwind
+SGOR – Operational Management and Traceability System (professional project): ERP for a beekeepers' cooperative, with
+batch traceability, QR Code labels, JWT authentication with four roles and an audit log (FastAPI, React, TypeScript).
+TECHNICAL SKILLS
+• Languages: TypeScript, JavaScript, C#, Python, SQL, HTML, CSS
+• Back-end and data: .NET, FastAPI, Node.js, PostgreSQL, SQLAlchemy, Prisma, Redis, SQLite
+• Front-end: React, Next.js, Tailwind CSS
+• AI: Claude API, Gemini, RAG and embeddings, AI coding assistants
+• DevOps and testing: Git, Docker, GitHub Actions (CI/CD), pytest, Vitest, Playwright, Testcontainers
+EDUCATION AND CERTIFICATIONS
+• Bachelor's in Computer Science · UNIP · Jan/2025 – Dec/2028 (in progress)
+• Technologist in Systems Analysis and Development · ATHON Ensino Superior · Jan/2022 – Dec/2024 (completed)
+• Technical Diploma in Electrical and Electronics · SENAI · Jan/2022 – Dec/2023
+• Certifications: AWS Academy Cloud Foundations · Oracle Cloud Infrastructure · Google Cloud Foundations · React.js with
+TypeScript
+LANGUAGES
+Portuguese (native) · English (intermediate, technical reading and written communication)

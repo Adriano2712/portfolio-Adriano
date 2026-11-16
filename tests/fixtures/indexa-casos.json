@@ -1,0 +1,21 @@
+{
+  "$comment": "Casos calculados pelo próprio Indexa, transcritos das telas em indexa/docs/telas (sistema rodando com índices reais do SGS) e do exemplo conferível do README. Periodicidade 12 e defasagem 1 em todos. 'percentual' é o percentual aplicado, com as casas que a tela mostra.",
+  "casos": [
+    { "id": "loja3-c1", "fonte": "telas/4-detalhe-retroativos.png", "tipo": "ipca", "mes": "2024-03", "valor": "4800.00", "esperado": "5016.32", "percentual": "4.5066", "regra": "indice", "janela": ["2023-02", "2024-01"] },
+    { "id": "loja3-c2", "fonte": "telas/4-detalhe-retroativos.png", "tipo": "ipca", "mes": "2025-03", "valor": "5016.32", "esperado": "5245.06", "percentual": "4.5599", "regra": "indice", "janela": ["2024-02", "2025-01"] },
+    { "id": "loja3-c3", "fonte": "telas/4-detalhe-retroativos.png", "tipo": "ipca", "mes": "2026-03", "valor": "5245.06", "esperado": "5478.01", "percentual": "4.4414", "regra": "indice", "janela": ["2025-02", "2026-01"] },
+    { "id": "elevadores-c1", "fonte": "telas/4b-detalhe-nao-reducao.png", "tipo": "igpm", "naoReduzir": true, "mes": "2025-11", "valor": "3900.00", "esperado": "4010.31", "percentual": "2.8284", "regra": "indice", "janela": ["2024-10", "2025-09"] },
+    { "id": "elevadores-c2", "fonte": "telas/4b-detalhe-nao-reducao.png", "tipo": "igpm", "naoReduzir": true, "mes": "2026-11", "valor": "4010.31", "esperado": "4144.59", "percentual": "3.3484", "regra": "indice", "janela": ["2025-10", "2026-09"] },
+    { "id": "honorarios-c1", "fonte": "telas/1-painel.png", "tipo": "fixo", "percentualFixo": "5", "mes": "2025-01", "valor": "1650.00", "esperado": "1732.50", "percentual": "5.00", "regra": "percentualFixo" },
+    { "id": "honorarios-c2", "fonte": "telas/1-painel.png", "tipo": "fixo", "percentualFixo": "5", "mes": "2026-01", "valor": "1732.50", "esperado": "1819.13", "percentual": "5.00", "regra": "percentualFixo" },
+    { "id": "apto52-c1", "fonte": "telas/1-painel.png", "tipo": "igpm", "piso": "0", "mes": "2023-07", "valor": "2350.00", "esperado": "2350.00", "percentual": "0.00", "regra": "piso" },
+    { "id": "apto52-c2", "fonte": "telas/1-painel.png", "tipo": "igpm", "piso": "0", "mes": "2024-07", "valor": "2350.00", "esperado": "2350.00", "percentual": "0.00", "regra": "piso" },
+    { "id": "apto52-c3", "fonte": "telas/1-painel.png", "tipo": "igpm", "piso": "0", "mes": "2025-07", "valor": "2350.00", "esperado": "2515.12", "percentual": "7.03", "regra": "indice" },
+    { "id": "apto52-c4", "fonte": "telas/1-painel.png", "tipo": "igpm", "piso": "0", "mes": "2026-07", "valor": "2515.12", "esperado": "2564.53", "percentual": "1.96", "regra": "indice" },
+    { "id": "sala204-c1", "fonte": "telas/1-painel.png + telas/2-contratos.png (teto 4%)", "tipo": "ipca", "teto": "4", "mes": "2026-11", "valor": "2500.00", "esperado": "2600.00", "percentual": "4.00", "regra": "teto" },
+    { "id": "readme-exemplo", "fonte": "README.md, Exemplo conferível", "tipo": "ipca", "mes": "2026-02", "valor": "2500.00", "esperado": "2606.61", "percentual": "4.2644", "regra": "indice", "janela": ["2025-01", "2025-12"] },
+    { "id": "readme-teto", "fonte": "README.md, Exemplo conferível (teto de 4%)", "tipo": "ipca", "teto": "4", "mes": "2026-02", "valor": "2500.00", "esperado": "2600.00", "percentual": "4.00", "regra": "teto" },
+    { "id": "readme-igpm-negativo", "fonte": "README.md, contraexemplo IGP-M 2025", "tipo": "igpm", "mes": "2026-02", "valor": "2500.00", "esperado": "2473.95", "regra": "indice" },
+    { "id": "readme-igpm-nao-reduzir", "fonte": "README.md, contraexemplo IGP-M 2025 com não reduzir", "tipo": "igpm", "naoReduzir": true, "mes": "2026-02", "valor": "2500.00", "esperado": "2500.00", "percentual": "0.00", "regra": "naoReducao" }
+  ]
+}

@@ -1,0 +1,15 @@
+%% Rascunho. Fonte: noAr/README.md. [VALIDAR] contra o código, que não está nesta máquina.
+flowchart TB
+    U[Usuário] --> Web[Next.js]
+    V[Visitante] --> SP[Página de status pública<br/>sem login]
+    Web -->|JWT| API[FastAPI]
+    SP --> API
+    API --> PG[(PostgreSQL<br/>monitores · verificações · incidentes)]
+    Wk[Worker<br/>mesmo código da API] -->|SELECT … FOR UPDATE SKIP LOCKED| PG
+    Wk -->|só http/https · bloqueia IP privado| Alvo[Sites e APIs monitorados]
+    Wk --> Inc{Mudou o estado?}
+    Inc -->|abre ou fecha incidente| PG
+    Inc --> Al[Alertas em melhor esforço]
+    Al --> Em[E-mail]
+    Al --> Tg[Telegram]
+    Al --> Wh[Webhook]

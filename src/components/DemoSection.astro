@@ -1,0 +1,53 @@
+---
+import IndexaDemo, { type DemoLabels } from './IndexaDemo';
+import { t, MONTHS } from '../i18n/utils';
+import type { Locale } from '../data/facts';
+
+interface Props { lang: Locale }
+const { lang } = Astro.props;
+const labels: DemoLabels = {
+  locale: lang,
+  currentValue: t(lang, 'demo.currentValue'),
+  index: t(lang, 'demo.index'),
+  ipca: t(lang, 'demo.ipca'),
+  igpm: t(lang, 'demo.igpm'),
+  fixed: t(lang, 'demo.fixedShort'),
+  fixedPercent: t(lang, 'demo.fixedPercent'),
+  month: t(lang, 'demo.monthOnly'),
+  year: t(lang, 'demo.year'),
+  clauses: t(lang, 'demo.clauses'),
+  optional: t(lang, 'demo.optional'),
+  cap: t(lang, 'demo.cap'),
+  floor: t(lang, 'demo.floor'),
+  noReduction: t(lang, 'demo.noReduction'),
+  newValue: t(lang, 'demo.newValue'),
+  applied: t(lang, 'demo.applied'),
+  accumulated: t(lang, 'demo.accumulated'),
+  rule: t(lang, 'demo.rule'),
+  window: t(lang, 'demo.window'),
+  rounding: t(lang, 'demo.roundingLabel'),
+  roundingText: t(lang, 'demo.rounding'),
+  snapshot: t(lang, 'demo.snapshot'),
+  waiting: t(lang, 'demo.waiting'),
+  invalidValue: t(lang, 'demo.invalidValue'),
+  invalidPercent: t(lang, 'demo.invalidPercent'),
+  rules: {
+    indice: t(lang, 'rule.indice'),
+    percentualFixo: t(lang, 'rule.percentualFixo'),
+    teto: t(lang, 'rule.teto'),
+    piso: t(lang, 'rule.piso'),
+    naoReducao: t(lang, 'rule.naoReducao'),
+  },
+  months: MONTHS[lang],
+};
+---
+<section id="demo" aria-labelledby="demo-titulo" class="scroll-mt-16 border-t border-border bg-surface">
+  <div class="mx-auto flex max-w-[1120px] flex-col gap-8 px-4 py-14 md:px-8 md:py-[4.5rem] lg:py-24 xl:px-0">
+    <div class="flex flex-col gap-2">
+      <h2 id="demo-titulo" class="heading text-[1.625rem] md:text-[1.75rem] lg:text-[2rem]">{t(lang, 'demo.title')}</h2>
+      <p class="font-semibold">{t(lang, 'demo.disclaimer')}</p>
+      <p class="max-w-[72ch] text-muted">{t(lang, 'demo.intro')} {t(lang, 'demo.equivalence')}</p>
+    </div>
+    <IndexaDemo client:visible labels={labels} />
+  </div>
+</section>

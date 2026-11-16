@@ -1,0 +1,94 @@
+---
+title: Indexa
+lang: en
+kind: personal
+order: 2
+summary: Calculates and sends the annual adjustment of recurring contracts using the official index, instead of spreadsheets.
+highlight:
+  fact: indexa.oracleMatched
+  label: periods identical to the official IPCA from the Central Bank of Brazil
+stack: [C#/.NET, Hangfire, PostgreSQL, React, TypeScript, Docker, GitHub Actions, FsCheck, Testcontainers]
+repo: indexa
+diagrams:
+  - id: architecture
+    caption: One container runs the API, dashboard and jobs; the calculation engine is a pure library.
+  - id: lifecycle
+    caption: Lifecycle of an adjustment. Once notified or applied it never changes; a correction becomes a new revision.
+gallery:
+  - src: ./img/indexa-painel.png
+    alt: Indexa dashboard with active contracts, monthly value under management, upcoming adjustments with their status and recent history with the rule applied.
+  - src: ./img/indexa-lista-de-contratos.png
+    alt: Contract list with index, current value, next adjustment date and clauses such as cap, floor and no reduction.
+  - src: ./img/indexa-novo-contrato.png
+    alt: New contract form with client, initial value, base date, index, frequency, lag, cap, floor and an option to never reduce the value.
+  - src: ./img/indexa-detalhe-retroativos.png
+    alt: Detail of a rental contract with a timeline of retroactive adjustments already applied, each with its index window and PDF letter.
+  - src: ./img/indexa-detalhe-nao-reducao.png
+    alt: Detail of an IGP-M contract with the no-reduction clause, showing one applied adjustment and the next one already calculated.
+  - src: ./img/indexa-configuracoes.png
+    alt: Notification settings screen with the email channel, lead time in days and destination email.
+---
+
+## Problem
+
+Real estate agencies, condominiums and accounting firms track contract adjustments in spreadsheets: the date slips, the index or period is wrong, and nothing records how the value was calculated.
+
+## Result
+
+- **<Fact k="indexa.oracleMatched" />** periods identical to the official accumulated IPCA from the Central Bank of Brazil; the other <Fact k="indexa.oracleOff" /> off by <Fact k="indexa.oracleDiff" />.
+- **<Fact k="indexa.tests" />** automated tests: engine, domain and integration against real Postgres and a real mail server (Testcontainers).
+- **<Fact k="indexa.adrs" />** architecture decisions recorded (ADRs).
+- CI/CD on GitHub Actions and deployment with Docker Compose.
+
+## Architecture
+
+<Diagram id="architecture" />
+
+The calculation engine knows nothing about the database, the network or the clock: it receives today's date and the index values as parameters. That makes it testable against the full official series without starting anything.
+
+Formula, with a single rounding step at the end:
+
+```text
+accumulated = Π (1 + monthly_change / 100) − 1        (no rounding)
+percentage  = clamp(accumulated, floor, cap)
+new value   = current_value × (1 + percentage)
+if "no reduction" and new value < current value → keep current value
+new value   = round(new value, 2 places, half away from zero)
+```
+
+<Diagram id="lifecycle" />
+
+## Technical decisions
+
+**A single rounding step, in `decimal` (ADR-04).** Rounding the percentage before multiplying compounds the error. In the README example, <Fact k="indexa.exampleBase" /> with IPCA gives <Fact k="indexa.exampleCorrect" />; rounding the percentage first would give <Fact k="indexa.exampleEarlyRounding" />.
+
+**Accumulate by compounding monthly changes (ADR-07).** It works for any window and any index. Checked against the official 12 months IPCA series: <Fact k="indexa.oracleMatched" /> identical. The gap in the other <Fact k="indexa.oracleOff" /> comes from IBGE accumulating by the index number, while monthly changes are published already rounded. The difference is documented, not hidden.
+
+**Never calculate with incomplete data (ADR-06).** If a month of the window is missing, the adjustment stays *Waiting for index* and the job retries the next day. The product promises the official index, so there is no estimate.
+
+**Duplicate-run protection lives in the database, not the scheduler (ADR-10).** A partial unique index per contract and cycle, an idempotency key and optimistic version control. Tested with <Fact k="indexa.parallelRuns" /> without writing anything twice.
+
+**Immutable history with a trigger (ADR-11).** A notified or applied adjustment never changes, not even through a manual UPDATE. A correction creates a new revision and the previous one becomes *Superseded*.
+
+**Index source behind an interface (ADR-08).** Central Bank SGS API with timeout, retries and a circuit breaker. If the source goes down, processing continues with the last stored data; if an index is revised, only adjustments not yet sent are recalculated.
+
+**Jobs in Postgres itself (ADR-09).** Hangfire stored in the same database: fewer services to run, with retries and a failure dashboard built in.
+
+## What was revised
+
+- **Session:** the first version kept the token in `localStorage`. I moved it to an `HttpOnly` + `SameSite=Strict` cookie, so an XSS bug cannot read the token (ADR-15).
+- **Platform:** the project started on .NET 8 and moved to .NET 10 (LTS) before deployment, with no code changes (ADR-14).
+- **Cases the engine had to cover:** IGP-M accumulated <Fact k="indexa.igpm2025" />. Without a clause, the value drops; with "no reduction", it stays the same and the negative accumulated value is still recorded (ADR-03).
+- **Current limits:** not yet deployed to production; logging out deletes the cookie but does not revoke the token on the server.
+
+## Screens
+
+<Gallery />
+
+Fictitious data; real index values from the Central Bank of Brazil.
+
+## Stack and code
+
+<StackList />
+
+<RepoLink />

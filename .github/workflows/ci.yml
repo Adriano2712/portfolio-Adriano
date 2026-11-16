@@ -27,7 +27,7 @@ jobs:
       - name: Tipos
         run: npm run check
       - name: Diagramas versionados batem com os .mmd
-        run: npm run diagrams && git diff --exit-code -- 'src/content/projects/*/diagrams/*.svg'
+        run: npm run check:diagrams
       - name: Testes unitários (idioma e equivalência com o Indexa)
         run: npm run test:unit
       - name: Build

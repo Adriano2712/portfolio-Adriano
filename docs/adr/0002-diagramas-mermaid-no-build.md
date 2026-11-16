@@ -4,4 +4,4 @@
 - **Alternativas:** `@mermaid-js/mermaid-cli` (baixa outro Chrome via Puppeteer); `rehype-mermaid` no build (precisa de navegador no build da Vercel); Mermaid no navegador (JavaScript pesado em toda página).
 - **Motivo:** zero JavaScript de diagrama no navegador e build da Vercel sem navegador. Spike validado: os 8 diagramas renderizam, e os de arquitetura ficaram verticais para caber na coluna de texto.
 - **Custo de reverter:** baixo. Os `.mmd` continuam sendo a fonte.
-- **Gatilho:** esquecer de rodar o script depois de editar um `.mmd` (mitigação na Etapa 5: o CI roda `npm run diagrams` e falha se houver diferença).
+- **Gatilho:** esquecer de rodar o script depois de editar um `.mmd`. Mitigação: cada SVG guarda o hash SHA-256 do `.mmd` que o gerou, e o CI (`npm run check:diagrams`) falha se não bater. Comparar os bytes do SVG não serve: a medição de texto muda entre Windows e Linux (primeira execução do CI).

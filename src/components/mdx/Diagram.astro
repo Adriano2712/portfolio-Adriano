@@ -15,7 +15,7 @@ const svg = svgs[key];
 if (!svg) throw new Error(`Diagrama não gerado: ${key}. Rode "npm run diagrams".`);
 const caption = entry.data.diagrams.find((d) => d.id === id)?.caption ?? '';
 // O SVG vira imagem acessível: o texto alternativo é a legenda.
-const accessibleSvg = svg.replace('<svg ', `<svg role="img" aria-label="${caption.replaceAll('"', '&quot;')}" `);
+const accessibleSvg = svg.replace(/^<!--[\s\S]*?-->\s*/, '').replace('<svg ', `<svg role="img" aria-label="${caption.replaceAll('"', '&quot;')}" `);
 ---
 <figure class="not-prose my-6 overflow-hidden rounded-lg border border-border bg-surface">
   <div class="overflow-x-auto p-4 md:p-6" tabindex="0" aria-label={caption}>

@@ -13,11 +13,14 @@
  */
 import { chromium } from '@playwright/test';
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+// Normaliza fim de linha para o hash não mudar entre Windows e Linux.
+const sha256 = (s) => createHash('sha256').update(s.replace(/\r\n/g, '\n')).digest('hex');
 const require = createRequire(import.meta.url);
 const mermaidJs = readFileSync(require.resolve('mermaid/dist/mermaid.min.js'), 'utf8');
 const interWoff2 = readFileSync(require.resolve('@fontsource/inter/files/inter-latin-400-normal.woff2')).toString('base64');
@@ -91,7 +94,8 @@ for (const job of jobs) {
       .replace(/\sfilter="url\([^)]*\)"/g, '')
       .replace(/filter:\s*(?:url|drop-shadow)\((?:[^()]|\([^()]*\))*\);?/g, '');
     const leftovers = [...new Set((svg.match(/#[0-9a-f]{6}\b/gi) ?? []).map((h) => h.toLowerCase()))];
-    writeFileSync(job.out, svg);
+    // Hash da fonte: o CI confere que o SVG versionado foi gerado deste .mmd (scripts/check-diagrams.mjs).
+    writeFileSync(job.out, `<!-- mmd-sha256: ${sha256(code)} -->\n${svg}`);
     console.log(`✓ ${job.out.slice(root.length + 1)}${leftovers.length ? `  (cores fixas restantes: ${leftovers.join(' ')})` : ''}`);
   } catch (e) {
     failed++;

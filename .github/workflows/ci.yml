@@ -39,7 +39,12 @@ jobs:
       - name: Testes de ponta a ponta (desktop, tablet, celular)
         run: npm run test:e2e
       - name: Lighthouse (celular, todas as páginas, mínimo 95)
-        run: npm run lighthouse
+        run: |
+          set +e
+          npm run lighthouse
+          code=$?
+          node scripts/lh-summary.mjs
+          exit $code
       - uses: actions/upload-artifact@v7
         if: failure()
         with:
@@ -48,4 +53,5 @@ jobs:
             playwright-report/
             test-results/
             .lighthouseci/
+          include-hidden-files: true
           retention-days: 7

@@ -8,15 +8,16 @@ module.exports = {
     collect: {
       staticDistDir: './.vercel/output/static',
       url: paths.map((p) => `http://localhost${p}`),
-      numberOfRuns: 1,
+      // 3 execuções por página; a meta vale para a mediana (ruído do runner não reprova sozinho).
+      numberOfRuns: 3,
       settings: { chromeFlags: '--no-sandbox' },
     },
     assert: {
       assertions: {
-        'categories:performance': ['error', { minScore: 0.95 }],
-        'categories:accessibility': ['error', { minScore: 0.95 }],
-        'categories:best-practices': ['error', { minScore: 0.95 }],
-        'categories:seo': ['error', { minScore: 0.95 }],
+        'categories:performance': ['error', { minScore: 0.95, aggregationMethod: 'median' }],
+        'categories:accessibility': ['error', { minScore: 0.95, aggregationMethod: 'median' }],
+        'categories:best-practices': ['error', { minScore: 0.95, aggregationMethod: 'median' }],
+        'categories:seo': ['error', { minScore: 0.95, aggregationMethod: 'median' }],
       },
     },
     upload: { target: 'filesystem', outputDir: './.lighthouseci' },

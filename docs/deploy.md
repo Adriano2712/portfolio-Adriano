@@ -1,5 +1,7 @@
 # Publicação na Vercel
 
+**No ar:** https://portfolio-adriano-taupe.vercel.app (projeto importado em 16/11/2026; cada push na `main` publica).
+
 Feito uma vez, no navegador. Depois disso, cada push na `main` publica e cada pull request ganha uma prévia.
 
 1. **GitHub:** repositório: https://github.com/Adriano2712/portfolio-Adriano (público). Código já enviado:
@@ -18,6 +20,6 @@ Feito uma vez, no navegador. Depois disso, cada push na `main` publica e cada pu
 
 - `/` num navegador em português abre `/pt/`; em inglês, `/en/`.
 - `curl -sI https://SEU-DOMINIO/` com user-agent de navegador responde 302; com `-A Googlebot` responde 200.
-- [VALIDAR] Acesso de fora do Brasil (VPN) com navegador em português vai para `/pt/`; com navegador em inglês, para `/en/`. Isso confirma que o cabeçalho `x-vercel-ip-country` chega (ADR-0001).
+- Cabeçalho `x-vercel-ip-country`: validado em 16/11/2026 (ADR-0001). Falta só um teste de fora do Brasil (VPN) com navegador em inglês, que deve ir para `/en/`.
 - `https://SEU-DOMINIO/sitemap-index.xml` e `/robots.txt` apontam para o domínio certo.
 - Lighthouse do Chrome, perfil celular, em `/pt/` e num estudo de caso.

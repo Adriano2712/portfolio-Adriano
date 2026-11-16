@@ -4,6 +4,8 @@ O portfólio que prova o que o CV diz: cada número aparece ao lado da sua evid�
 
 Astro (estático) + MDX + Tailwind, bilíngue em `/pt` e `/en`, hospedado na Vercel.
 
+**No ar:** https://portfolio-adriano-taupe.vercel.app
+
 ## Estado
 
 | Etapa | Situação |
@@ -12,7 +14,7 @@ Astro (estático) + MDX + Tailwind, bilíngue em `/pt` e `/en`, hospedado na Ver
 | 2 · Design | concluída: opção A · Técnico ([docs/design/etapa-2.md](docs/design/etapa-2.md)) |
 | 3 · Construção | concluída |
 | 4 · Demo e extras | concluída |
-| 5 · Qualidade e publicação | pronta para publicar; falta o deploy ([docs/deploy.md](docs/deploy.md)) |
+| 5 · Qualidade e publicação | concluída: no ar, Lighthouse 100 nas 4 categorias em todas as páginas (CI, celular, mediana de 3) |
 
 ## Como rodar
 

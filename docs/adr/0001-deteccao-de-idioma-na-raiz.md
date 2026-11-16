@@ -4,4 +4,4 @@
 - **Alternativas:** Vercel Edge Middleware (mais rápido, mas outra peça para configurar e testar); redirecionar no navegador com JavaScript (pisca a tela e robôs não executam); só `Accept-Language` sem país.
 - **Motivo:** uma única rota dinâmica, testável como função pura (`detectLang`, testes em `tests/unit/detect.test.ts`) e em ponta a ponta (`tests/e2e/site.spec.ts`). As páginas internas nunca redirecionam.
 - **Custo de reverter:** baixo. Trocar para middleware muda um arquivo; tornar a raiz estática é remover `prerender = false` e servir a página de escolha.
-- **Gatilho:** custo ou latência da função na raiz, ou a Vercel deixar de enviar `x-vercel-ip-country`. [VALIDAR] o cabeçalho no primeiro deploy (Etapa 5).
+- **Gatilho:** custo ou latência da função na raiz, ou a Vercel deixar de enviar `x-vercel-ip-country`. Validado em produção em 16/11/2026: de um IP no Brasil, navegadores em inglês e alemão foram para `/pt/`, então o cabeçalho chega à função; cookie `lang=en` venceu o navegador em português; Googlebot recebeu 200 sem redirecionamento.

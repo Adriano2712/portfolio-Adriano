@@ -208,3 +208,14 @@ test.describe('Open Graph', () => {
     });
   }
 });
+
+test('NoAr: acesso de visitante e página de status pública', async ({ page }) => {
+  await page.goto('/pt/projetos/noar/');
+  const box = page.locator('[data-demo-access]');
+  await expect(box).toContainText('visitante@gmail.com');
+  await expect(box).toContainText('teste123');
+  await expect(box.getByRole('link')).toHaveAttribute('href', /no-ar-navy\.vercel\.app\/status\/[0-9a-f-]{36}$/);
+  await expect(page.getByRole('link', { name: 'Ver no ar' })).toHaveAttribute('href', 'https://no-ar-navy.vercel.app/login');
+  await page.goto('/en/projects/noar/');
+  await expect(page.locator('[data-demo-access]')).toContainText('Visitor access');
+});

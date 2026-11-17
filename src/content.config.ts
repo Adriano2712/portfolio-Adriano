@@ -34,6 +34,8 @@ const projects = defineCollection({
       statusPage: z.string().nullable().optional(),
       /** Sistema publicado; vira o botão "Ver no ar" no topo do case. */
       live: z.string().url().nullable().optional(),
+      /** Chave em demoAccess (src/data/facts.ts): mostra o login de visitante no topo do case. */
+      demo: z.string().nullable().optional(),
     }),
 });
 

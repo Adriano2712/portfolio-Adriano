@@ -229,3 +229,15 @@ export const engineeringMetrics = [
   label: Record<Locale, string>;
   evidence: string;
 }>;
+
+// ---------- Acesso de visitante aos projetos publicados ----------
+// Conta pública de demonstração, criada pelo Adriano para recrutadores entrarem no sistema.
+export const demoAccess = {
+  noar: {
+    loginUrl: 'https://no-ar-navy.vercel.app/login',
+    email: 'visitante@gmail.com',
+    password: 'teste123',
+    statusUrl: 'https://no-ar-navy.vercel.app/status/0406de9d-5e2d-4096-a103-9dd710f809c6',
+  },
+} as const;
+export type DemoKey = keyof typeof demoAccess;

@@ -30,6 +30,7 @@ for (const e of f.education) { add(e.period.pt); add(e.period.en); }
 for (const c of f.certifications) { add(c.pt); add(c.en); }
 add(f.profile.links.emailLabel);
 add('Adriano2712'); // usuário do GitHub
+for (const d of Object.values(f.demoAccess)) { add(d.email); add(d.password); } // login de visitante
 const allowedSorted = [...allowed].sort((a, b) => b.length - a.length);
 
 // Identificadores técnicos, não métricas. Mesma lista de scripts/check-content.mjs.

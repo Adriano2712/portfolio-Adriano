@@ -8,7 +8,7 @@ import StackList from '../mdx/StackList.astro';
 import RepoLink from '../mdx/RepoLink.astro';
 import Gallery from '../mdx/Gallery.astro';
 import ZoomDialog from '../ZoomDialog.astro';
-import { facts, repos, type FactKey, type Locale } from '../../data/facts';
+import { facts, repos, demoAccess, type DemoKey, type FactKey, type Locale } from '../../data/facts';
 import { t, homePath, projectPath } from '../../i18n/utils';
 import { slugOf, type Project } from '../../lib/project';
 
@@ -22,6 +22,7 @@ const h = d.highlight;
 const metric = h ? ('fact' in h ? facts[h.fact as FactKey][lang] : h.text) : undefined;
 const isCase = d.kind === 'personal';
 const repo = d.repo ? repos[d.repo as keyof typeof repos] : undefined;
+const demo = d.demo ? demoAccess[d.demo as DemoKey] : undefined;
 const kindLabel = isCase ? t(lang, 'projects.personal') : `${t(lang, 'projects.professional')} · ${t(lang, 'projects.notPublic')}`;
 const title = isCase ? `${d.title} · ${t(lang, 'meta.caseSuffix')} · Adriano do Prado Alves` : `${d.title} · Adriano do Prado Alves`;
 ---
@@ -50,6 +51,23 @@ const title = isCase ? `${d.title} · ${t(lang, 'meta.caseSuffix')} · Adriano d
               </a>
             )}
           </div>
+        )}
+        {demo && (
+          <section aria-labelledby="demo-access" data-demo-access class="flex max-w-md flex-col gap-3 rounded-lg border border-border bg-surface p-4">
+            <div class="flex flex-col gap-0.5">
+              <h2 id="demo-access" class="font-semibold">{t(lang, 'case.demoTitle')}</h2>
+              <p class="text-sm text-muted">{t(lang, 'case.demoIntro')}</p>
+            </div>
+            <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5">
+              <dt class="text-sm text-muted">{t(lang, 'case.demoEmail')}</dt>
+              <dd class="break-all font-mono text-sm">{demo.email}</dd>
+              <dt class="text-sm text-muted">{t(lang, 'case.demoPassword')}</dt>
+              <dd class="font-mono text-sm">{demo.password}</dd>
+            </dl>
+            <a href={demo.statusUrl} class="inline-flex min-h-11 items-center gap-1.5 self-start text-sm text-muted hover:text-text">
+              {t(lang, 'case.statusPublic')}<Icon name="arrow-right" size={14} />
+            </a>
+          </section>
         )}
       </div>
       {h && (

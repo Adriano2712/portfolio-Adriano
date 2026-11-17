@@ -12,8 +12,21 @@ repo: noar
 diagrams:
   - id: architecture
     caption: API and worker share the same code; Postgres is both the database and the scheduler.
-gallery: []
-statusPage: null # opcional: URL pública da página de status, se o NoAr for publicado (Etapa 4)
+gallery:
+  - src: ./img/noar-dashboard.png
+    alt: NoAr dashboard with four monitors, three up and one down, each showing its current state.
+  - src: ./img/noar-monitor-detalhe.png
+    alt: Detail of a monitor that is up, with uptime over the latest checks and a response time chart.
+  - src: ./img/noar-monitor-incidente.png
+    alt: Detail of a monitor that is down, with no uptime over the latest checks and an open incident.
+  - src: ./img/noar-pagina-de-status.png
+    alt: Public status page, no login needed, warning that some services are down.
+  - src: ./img/noar-configuracoes.png
+    alt: Notification settings screen for Telegram and webhook, in addition to email.
+  - src: ./img/noar-dashboard-dark.png
+    alt: NoAr dashboard in dark mode.
+statusPage: null
+live: https://no-ar-navy.vercel.app
 ---
 
 ## Problem
@@ -23,6 +36,7 @@ Knowing a website or API is down before a customer reports it, with history to u
 ## Result
 
 - Multi-user monitor with check history, incidents opened and closed automatically and a public status page per account.
+- Dashboard, monitor detail and status page update on their own when a monitor changes state.
 - Alerts via email, Telegram and webhook.
 - JWT authentication, isolation between accounts and SSRF protection.
 - Tests in three layers: pytest (API and worker), Vitest (interface) and Playwright (end to end).
@@ -41,6 +55,10 @@ The worker is a separate process that runs the same code as the API. It picks du
 
 **Best-effort alerts (ADR 0008).** A failing channel does not block the others or the processing of checks.
 
+**Real time with Postgres `LISTEN`/`NOTIFY` (ADR 0010).** When a monitor changes state, the worker announces it through the database itself and the API relays it to the browser over Server-Sent Events. Again, no Redis and no queue.
+
+**Deployed on free tiers (ADR 0011).** Frontend on Vercel, API on Render and database on Supabase. Render's free tier has no background workers, so a flag runs the scheduler inside the API; `SKIP LOCKED` still guarantees no check runs twice, and splitting the worker out again needs no code change.
+
 **JWT bearer (ADR 0006)** and **a public status page per account (ADR 0009)**, showing only monitors marked as public.
 
 ## What went wrong and known limits
@@ -49,7 +67,13 @@ The worker is a separate process that runs the same code as the API. It picks du
 
 **DNS rebinding is not closed yet.** SSRF protection resolves the IP at check time, but a domain can change IP between the check and the connection. It is recorded in the ADR as the next hardening step.
 
-**Status page without real time.** It currently loads data once per visit; live updates over SSE are the next phase.
+**A scheduler with no supervisor.** Inside the API, a failed round (the database briefly unavailable, for example) would have silently killed the check loop, since there is no longer a container to restart it. The loop now logs the error and retries on the next round, with a test covering that case.
+
+**The free tier sleeps.** Render shuts the service down after a period without traffic, and checks stop with it. An external pinger calls `/health` periodically to keep it awake.
+
+## Screens
+
+<Gallery />
 
 ## Stack and code
 

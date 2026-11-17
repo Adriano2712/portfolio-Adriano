@@ -12,8 +12,21 @@ repo: noar
 diagrams:
   - id: architecture
     caption: API e worker no mesmo código; o Postgres é ao mesmo tempo banco e agendador.
-gallery: []
-statusPage: null # opcional: URL pública da página de status, se o NoAr for publicado (Etapa 4)
+gallery:
+  - src: ./img/noar-dashboard.png
+    alt: Dashboard do NoAr com quatro monitores, três no ar e um fora do ar, cada um com o estado atual.
+  - src: ./img/noar-monitor-detalhe.png
+    alt: Detalhe de um monitor no ar, com uptime das últimas checagens e gráfico de tempo de resposta.
+  - src: ./img/noar-monitor-incidente.png
+    alt: Detalhe de um monitor fora do ar, sem uptime nas últimas checagens e com um incidente em aberto.
+  - src: ./img/noar-pagina-de-status.png
+    alt: Página de status pública, sem login, avisando que alguns serviços estão fora do ar.
+  - src: ./img/noar-configuracoes.png
+    alt: Tela de configuração de notificações por Telegram e webhook, além do e-mail.
+  - src: ./img/noar-dashboard-dark.png
+    alt: Dashboard do NoAr no tema escuro.
+statusPage: null
+live: https://no-ar-navy.vercel.app
 ---
 
 ## Problema
@@ -23,6 +36,7 @@ Saber que um site ou API caiu antes do cliente avisar, com histórico para enten
 ## Resultado
 
 - Monitor multiusuário com histórico de verificações, incidentes abertos e fechados automaticamente e página de status pública por conta.
+- Dashboard, detalhe do monitor e página de status se atualizam sozinhos quando um monitor muda de estado.
 - Alertas por e-mail, Telegram e webhook.
 - Autenticação JWT, isolamento entre contas e proteção contra SSRF.
 - Testes em três camadas: pytest (API e worker), Vitest (interface) e Playwright (ponta a ponta).
@@ -41,6 +55,10 @@ O worker é um processo separado que usa o mesmo código da API. Ele busca as ve
 
 **Alertas em melhor esforço (ADR 0008).** Um canal com falha não bloqueia os outros nem o processamento das verificações.
 
+**Tempo real com `LISTEN`/`NOTIFY` do Postgres (ADR 0010).** Quando um monitor muda de estado, o worker avisa pelo próprio banco e a API repassa para o navegador por Server-Sent Events. De novo, sem Redis nem fila.
+
+**Deploy em planos gratuitos (ADR 0011).** Frontend na Vercel, API no Render e banco no Supabase. O plano gratuito do Render não tem processo em segundo plano, então uma flag faz o agendador rodar dentro da API; o `SKIP LOCKED` continua garantindo que nenhuma verificação rode duas vezes, e separar o worker de novo não exige mudar código.
+
 **JWT bearer (ADR 0006)** e **página de status pública por conta (ADR 0009)**, que mostra só os monitores marcados como públicos.
 
 ## O que deu errado e limites conhecidos
@@ -49,7 +67,13 @@ O worker é um processo separado que usa o mesmo código da API. Ele busca as ve
 
 **DNS rebinding ainda não está fechado.** A proteção contra SSRF resolve o IP na verificação, mas um domínio pode trocar de IP entre a checagem e a conexão. Está registrado no ADR como próximo endurecimento.
 
-**Página de status sem tempo real.** Hoje ela carrega os dados uma vez por visita; atualização ao vivo por SSE é a próxima fase.
+**Um agendador sem supervisor.** Dentro da API, uma rodada com erro (o banco fora por um instante, por exemplo) derrubaria o laço de verificações em silêncio, porque não há mais um container para reiniciá-lo. O laço passou a registrar o erro e tentar de novo na rodada seguinte, com teste cobrindo esse caso.
+
+**O plano gratuito dorme.** O Render desliga o serviço depois de um período sem acessos, e as verificações param junto. Um pinger externo chama o `/health` periodicamente para mantê-lo acordado.
+
+## Telas
+
+<Gallery />
 
 ## Stack e código
 

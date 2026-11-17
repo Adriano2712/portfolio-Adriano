@@ -37,10 +37,19 @@ const title = isCase ? `${d.title} · ${t(lang, 'meta.caseSuffix')} · Adriano d
         <p class="font-mono text-sm text-muted">{kindLabel}</p>
         <h1 class="heading text-[2.5rem] md:text-5xl lg:text-[4rem]">{d.title}</h1>
         <p class="max-w-[40ch] text-lg text-muted md:text-xl">{d.summary}</p>
-        {repo && (
-          <a href={repo} class="inline-flex min-h-12 items-center gap-2 self-start rounded-md bg-accent px-5 font-semibold text-on-accent no-underline">
-            <Icon name="github" size={18} />{t(lang, 'case.codeOnGithub')}
-          </a>
+        {(repo || d.live) && (
+          <div class="flex flex-wrap gap-3">
+            {repo && (
+              <a href={repo} class="inline-flex min-h-12 items-center gap-2 rounded-md bg-accent px-5 font-semibold text-on-accent no-underline">
+                <Icon name="github" size={18} />{t(lang, 'case.codeOnGithub')}
+              </a>
+            )}
+            {d.live && (
+              <a href={d.live} class="inline-flex min-h-12 items-center gap-2 rounded-md border border-border bg-surface px-5 font-semibold no-underline">
+                <Icon name="external-link" size={18} />{t(lang, 'case.seeLive')}
+              </a>
+            )}
+          </div>
         )}
       </div>
       {h && (

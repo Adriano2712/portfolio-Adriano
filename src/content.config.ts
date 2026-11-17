@@ -32,6 +32,8 @@ const projects = defineCollection({
       diagrams: z.array(z.object({ id: z.string(), caption: z.string() })),
       gallery: z.array(z.object({ src: image(), alt: z.string() })),
       statusPage: z.string().nullable().optional(),
+      /** Sistema publicado; vira o botão "Ver no ar" no topo do case. */
+      live: z.string().url().nullable().optional(),
     }),
 });
 
